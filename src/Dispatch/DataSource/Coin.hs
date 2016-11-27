@@ -92,6 +92,5 @@ fetchReq (GetCoinScore n)     = getCoinScore n
 fetchReq (GetCoinList n f si) = getCoinList n f si
 
 
-initCoinState :: Int -> StateStore
-initCoinState threads = stateSet dispatchState stateEmpty
-  where dispatchState = CoinState threads
+initCoinState :: Int -> State CoinReq
+initCoinState threads = CoinState threads

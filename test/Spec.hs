@@ -24,7 +24,7 @@ userEnv = UserEnv { getGateway = Gateway { getGWUri = "http://127.0.0.1:3300"
                                          }
                   }
 
-state = initDispatchState 2
+state = stateSet (initUserState 2) stateEmpty
 
 testCreateUser :: Test
 testCreateUser = do

@@ -121,6 +121,5 @@ fetchReq (GetBind sn)            = getBind sn
 fetchReq (DeleteBind bid)        = deleteBind bid
 
 
-initUserState :: Int -> StateStore
-initUserState threads = stateSet dispatchState stateEmpty
-  where dispatchState = UserState threads
+initUserState :: Int -> State UserReq
+initUserState threads = UserState threads

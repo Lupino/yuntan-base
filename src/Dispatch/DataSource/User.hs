@@ -17,7 +17,6 @@ module Dispatch.DataSource.User
   , deleteBind
   ) where
 
-import           Control.Lens   ((&), (.~), (^.), (^?))
 import           Data.Aeson     (encode)
 import           Data.Text      (unpack)
 import           Dispatch.Types

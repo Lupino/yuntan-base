@@ -22,6 +22,7 @@ import           Haxl.Core                (BlockedFetch (..), DataSource,
                                            fetch, putFailure, putSuccess, show1,
                                            stateEmpty, stateSet)
 
+import           Dispatch.DataSource.Coin
 import           Dispatch.DataSource.User
 import           Dispatch.Types
 
@@ -47,6 +48,10 @@ data DispatchReq a where
   GetBind          :: ServiceName -> DispatchReq (Either ErrResult Bind)
   DeleteBind       :: BindID -> DispatchReq (Either ErrResult OkResult)
 
+  SaveCoin         :: UserName -> Coin -> DispatchReq (Either ErrResult ScoreResult)
+  GetCoinScore     :: UserName -> DispatchReq (Either ErrResult ScoreResult)
+  GetCoinList      :: UserName -> From -> Size -> DispatchReq (ListResult Coin)
+
   deriving (Typeable)
 
 deriving instance Eq (DispatchReq a)
@@ -64,6 +69,12 @@ instance Hashable (DispatchReq a) where
   hashWithSalt s (CreateBind n se sn ex) = hashWithSalt s (10::Int, n, se, sn, ex)
   hashWithSalt s (GetBind sn)            = hashWithSalt s (11::Int, sn)
   hashWithSalt s (DeleteBind bid)        = hashWithSalt s (12::Int, bid)
+
+  hashWithSalt s (SaveCoin n c)          = hashWithSalt s (13::Int, n, c)
+  hashWithSalt s (GetCoinScore n)        = hashWithSalt s (14::Int, n)
+  hashWithSalt s (GetCoinList n f si)    = hashWithSalt s (15::Int, n, f, si)
+
+
 
 deriving instance Show (DispatchReq a)
 instance Show1 DispatchReq where show1 = show
@@ -117,6 +128,10 @@ fetchReq (ClearUserExtra n)      = clearUserExtra n
 fetchReq (CreateBind n se sn ex) = createBind n se sn ex
 fetchReq (GetBind sn)            = getBind sn
 fetchReq (DeleteBind bid)        = deleteBind bid
+
+fetchReq (SaveCoin n c)          = saveCoin n c
+fetchReq (GetCoinScore n)        = getCoinScore n
+fetchReq (GetCoinList n f si)    = getCoinList n f si
 
 
 initDispatchState :: Int -> StateStore

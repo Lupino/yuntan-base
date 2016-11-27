@@ -18,9 +18,11 @@ library
   exposed-modules:     Dispatch
                      , Dispatch.Types.Internal
                      , Dispatch.Types.User
+                     , Dispatch.Types.Coin
                      , Dispatch.Types
                      , Dispatch.DataSource
                      , Dispatch.DataSource.User
+                     , Dispatch.DataSource.Coin
                      , Dispatch.API
 
                      , Dispatch.Utils

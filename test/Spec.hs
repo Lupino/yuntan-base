@@ -12,7 +12,7 @@ data UserEnv = UserEnv { getGateway :: Gateway }
   deriving (Show)
 
 instance AppEnv UserEnv where
-  gateway = getGateway
+  gateway env "UserDataSource" = getGateway env
 
 type DispatchM = GenHaxl UserEnv
 

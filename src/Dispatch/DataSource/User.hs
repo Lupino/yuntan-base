@@ -96,7 +96,7 @@ fetchAsync :: AppEnv u => QSem -> u -> BlockedFetch UserReq -> IO (Async ())
 fetchAsync sem env req = async $
   Control.Exception.bracket_ (waitQSem sem) (signalQSem sem) $ fetchSync req gw
 
-  where gw   = gateway env
+  where gw   = gateway env "UserDataSource"
 
 fetchSync :: BlockedFetch UserReq -> Gateway -> IO ()
 fetchSync (BlockedFetch req rvar) gw = do

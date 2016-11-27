@@ -27,7 +27,7 @@ data Gateway = Gateway { getGWUri       :: String
   deriving (Show)
 
 class AppEnv a where
-  gateway :: a -> Gateway
+  gateway :: a -> String -> Gateway
 
 type From        = Int64
 type Size        = Int64

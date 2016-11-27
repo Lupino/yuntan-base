@@ -23,6 +23,8 @@ library
                      , Dispatch.DataSource
                      , Dispatch.DataSource.User
                      , Dispatch.DataSource.Coin
+                     , Dispatch.DataSource.HTTP.User
+                     , Dispatch.DataSource.HTTP.Coin
                      , Dispatch.API
 
                      , Dispatch.Utils

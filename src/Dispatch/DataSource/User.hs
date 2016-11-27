@@ -1,132 +1,126 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveDataTypeable    #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE GADTs                 #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE RecordWildCards       #-}
+{-# LANGUAGE StandaloneDeriving    #-}
+{-# LANGUAGE TypeFamilies          #-}
 
 module Dispatch.DataSource.User
   (
-    createUser
-  , getUser
-  , getUsers
-  , removeUser
-  , verifyPasswd
-  , updateUserName
-  , updateUserPasswd
-  , updateUserExtra
-  , removeUserExtra
-  , clearUserExtra
-  , createBind
-  , getBind
-  , deleteBind
+    UserReq (..)
+  , initUserState
   ) where
 
-import           Data.Aeson     (encode)
-import           Data.Text      (unpack)
+import           Data.Hashable                 (Hashable (..))
+import           Data.Typeable                 (Typeable)
+import           Haxl.Core                     (BlockedFetch (..), DataSource,
+                                                DataSourceName, Flags,
+                                                PerformFetch (..), Show1, State,
+                                                StateKey, StateStore,
+                                                dataSourceName, fetch,
+                                                putFailure, putSuccess, show1,
+                                                stateEmpty, stateSet)
+
+import           Dispatch.DataSource.HTTP.User
 import           Dispatch.Types
-import           Dispatch.Utils
-import           Network.Wreq
 
---   post   "/api/users/"
-createUser :: UserName -> Password -> Gateway -> IO (Either ErrResult User)
-createUser n p gw =
-  responseEither $ asJSON =<< postWith opts uri [ "username" := t2b n
-                                                , "passwd"   := t2b p
-                                                ]
+import qualified Control.Exception             (SomeException, bracket_, try)
 
-  where opts = getOptions gw
-        uri = concat [ getGWUri gw, "/api/users/" ]
+import           Control.Concurrent.Async
+import           Control.Concurrent.QSem
 
---   get    "/api/users/:uidOrName/"
-getUser :: UserName -> Gateway -> IO (Either ErrResult User)
-getUser n gw =
-  responseEither $ asJSON =<< getWith opts uri
+-- Data source implementation.
 
-  where opts = getOptions gw
-        uri = concat [ getGWUri gw, "/api/users/", unpack n, "/" ]
+data UserReq a where
+  CreateUser       :: UserName -> Password -> UserReq (Either ErrResult User)
+  GetUser          :: UserName -> UserReq (Either ErrResult User)
+  GetUsers         :: From -> Size -> UserReq (ListResult User)
+  VerifyPasswd     :: UserName -> Password -> UserReq (Either ErrResult OkResult)
+  RemoveUser       :: UserName -> UserReq (Either ErrResult OkResult)
+  UpdateUserName   :: UserName -> UserName -> UserReq (Either ErrResult OkResult)
+  UpdateUserPasswd :: UserName -> Password -> UserReq (Either ErrResult OkResult)
+  UpdateUserExtra  :: UserName -> Extra -> UserReq (Either ErrResult OkResult)
+  RemoveUserExtra  :: UserName -> Extra -> UserReq (Either ErrResult OkResult)
+  ClearUserExtra   :: UserName -> UserReq (Either ErrResult OkResult)
+  CreateBind       :: UserName -> Service -> ServiceName -> Extra -> UserReq (Either ErrResult Bind)
+  GetBind          :: ServiceName -> UserReq (Either ErrResult Bind)
+  DeleteBind       :: BindID -> UserReq (Either ErrResult OkResult)
 
---   get    "/api/users/"
-getUsers :: From -> Size -> Gateway -> IO (ListResult User)
-getUsers f s gw = responseListResult "users" $ asJSON =<< getWith opts uri
+  deriving (Typeable)
 
-  where opts = getOptions gw
-        uri = concat [ getGWUri gw, "/api/users/?from=", show f, "&size=", show s]
+deriving instance Eq (UserReq a)
+instance Hashable (UserReq a) where
+  hashWithSalt s (CreateUser n p)        = hashWithSalt s (0::Int, n, p)
+  hashWithSalt s (GetUser n)             = hashWithSalt s (1::Int, n)
+  hashWithSalt s (GetUsers f si)         = hashWithSalt s (2::Int, f, si)
+  hashWithSalt s (VerifyPasswd n p)      = hashWithSalt s (3::Int, n, p)
+  hashWithSalt s (RemoveUser n)          = hashWithSalt s (4::Int, n)
+  hashWithSalt s (UpdateUserName n n1)   = hashWithSalt s (5::Int, n, n1)
+  hashWithSalt s (UpdateUserPasswd n p)  = hashWithSalt s (6::Int, n, p)
+  hashWithSalt s (UpdateUserExtra n ex)  = hashWithSalt s (7::Int, n, ex)
+  hashWithSalt s (RemoveUserExtra n ex)  = hashWithSalt s (8::Int, n, ex)
+  hashWithSalt s (ClearUserExtra n)      = hashWithSalt s (9::Int, n)
+  hashWithSalt s (CreateBind n se sn ex) = hashWithSalt s (10::Int, n, se, sn, ex)
+  hashWithSalt s (GetBind sn)            = hashWithSalt s (11::Int, sn)
+  hashWithSalt s (DeleteBind bid)        = hashWithSalt s (12::Int, bid)
 
---   post   "/api/users/:uidOrName/verify"
-verifyPasswd :: UserName -> Password -> Gateway -> IO (Either ErrResult OkResult)
-verifyPasswd n p gw =
-  responseEither $ asJSON =<< postWith opts uri [ "passwd" := t2b p ]
 
-  where opts = getOptions gw
-        uri = concat [ getGWUri gw, "/api/users/", unpack n, "/verify" ]
+deriving instance Show (UserReq a)
+instance Show1 UserReq where show1 = show
 
---   delete "/api/users/:uidOrName/"
-removeUser :: UserName -> Gateway -> IO (Either ErrResult OkResult)
-removeUser n gw =
-  responseEither $ asJSON =<< deleteWith opts uri
+instance StateKey UserReq where
+  data State UserReq = UserState { numThreads :: Int }
 
-  where opts = getOptions gw
-        uri = concat [ getGWUri gw, "/api/users/", unpack n, "/" ]
+instance DataSourceName UserReq where
+  dataSourceName _ = "UserDataSource"
 
---   post   "/api/users/:uidOrName/"
-updateUserName :: UserName -> UserName -> Gateway -> IO (Either ErrResult OkResult)
-updateUserName n n1 gw =
-  responseEither $ asJSON =<< postWith opts uri [ "username" := t2b n1 ]
+instance AppEnv u => DataSource u UserReq where
+  fetch = dispatchFetch
 
-  where opts = getOptions gw
-        uri = concat [ getGWUri gw, "/api/users/", unpack n, "/" ]
+dispatchFetch
+  :: AppEnv u => State UserReq
+  -> Flags
+  -> u
+  -> [BlockedFetch UserReq]
+  -> PerformFetch
 
---   post   "/api/users/:uidOrName/passwd"
-updateUserPasswd :: UserName -> Password -> Gateway -> IO (Either ErrResult OkResult)
-updateUserPasswd n p gw =
-  responseEither $ asJSON =<< postWith opts uri [ "passwd" := t2b p ]
+dispatchFetch _state _flags _user blockedFetches = AsyncFetch $ \inner -> do
+  sem <- newQSem $ numThreads _state
+  asyncs <- mapM (fetchAsync sem _user) blockedFetches
+  inner
+  mapM_ wait asyncs
 
-  where opts = getOptions gw
-        uri = concat [ getGWUri gw, "/api/users/", unpack n, "/passwd" ]
+fetchAsync :: AppEnv u => QSem -> u -> BlockedFetch UserReq -> IO (Async ())
+fetchAsync sem env req = async $
+  Control.Exception.bracket_ (waitQSem sem) (signalQSem sem) $ fetchSync req gw
 
---   post   "/api/users/:uidOrName/extra"
-updateUserExtra :: UserName -> Extra -> Gateway -> IO (Either ErrResult OkResult)
-updateUserExtra n ex gw =
-  responseEither $ asJSON =<< postWith opts uri [ "extra" := encode ex ]
+  where gw   = gateway env
 
-  where opts = getOptions gw
-        uri = concat [ getGWUri gw, "/api/users/", unpack n, "/extra" ]
+fetchSync :: BlockedFetch UserReq -> Gateway -> IO ()
+fetchSync (BlockedFetch req rvar) gw = do
+  e <- Control.Exception.try $ fetchReq req gw
+  case e of
+    Left ex -> putFailure rvar (ex :: Control.Exception.SomeException)
+    Right a -> putSuccess rvar a
 
---   delete "/api/users/:uidOrName/extra"
-removeUserExtra :: UserName -> Extra -> Gateway -> IO (Either ErrResult OkResult)
-removeUserExtra n ex gw =
-  responseEither $ asJSON =<< customPayloadMethodWith "DELETE" opts uri [ "extra" := encode ex ]
+fetchReq :: UserReq a -> Gateway -> IO a
+fetchReq (CreateUser n p)        = createUser n p
+fetchReq (GetUser n)             = getUser n
+fetchReq (GetUsers f si)         = getUsers f si
+fetchReq (VerifyPasswd n p)      = verifyPasswd n p
+fetchReq (RemoveUser n)          = removeUser n
+fetchReq (UpdateUserName n n1)   = updateUserName n n1
+fetchReq (UpdateUserPasswd n p)  = updateUserPasswd n p
+fetchReq (UpdateUserExtra n ex)  = updateUserExtra n ex
+fetchReq (RemoveUserExtra n ex)  = removeUserExtra n ex
+fetchReq (ClearUserExtra n)      = clearUserExtra n
+fetchReq (CreateBind n se sn ex) = createBind n se sn ex
+fetchReq (GetBind sn)            = getBind sn
+fetchReq (DeleteBind bid)        = deleteBind bid
 
-  where opts = getOptions gw
-        uri = concat [ getGWUri gw, "/api/users/", unpack n, "/extra" ]
 
---   post   "/api/users/:uidOrName/extra/clear"
-clearUserExtra :: UserName -> Gateway -> IO (Either ErrResult OkResult)
-clearUserExtra n gw =
-  responseEither $ asJSON =<< customMethodWith "POST" opts uri
-
-  where opts = getOptions gw
-        uri = concat [ getGWUri gw, "/api/users/", unpack n, "/extra/clear" ]
-
---   post   "/api/users/:uidOrName/binds"
-createBind :: UserName -> Service -> ServiceName -> Extra -> Gateway -> IO (Either ErrResult Bind)
-createBind n s sn ex gw =
-  responseEither $ asJSON =<< postWith opts uri [ "service" := t2b s
-                                                , "name"    := t2b sn
-                                                , "extra"   := encode ex
-                                                ]
-
-  where opts = getOptions gw
-        uri = concat [ getGWUri gw, "/api/users/", unpack n, "/binds" ]
-
---   get    "/api/binds/"
-getBind :: ServiceName -> Gateway -> IO (Either ErrResult Bind)
-getBind sn gw =
-  responseEither $ asJSON =<< getWith opts uri
-
-  where opts = getOptions gw
-        uri = concat [ getGWUri gw, "/api/binds/?name=", unpack sn ]
-
---   delete "/api/binds/:bind_id"
-deleteBind :: BindID -> Gateway -> IO (Either ErrResult OkResult)
-deleteBind bid gw =
-  responseEither $ asJSON =<< deleteWith opts uri
-
-  where opts = getOptions gw
-        uri = concat [ getGWUri gw, "/api/binds/", show bid ]
+initUserState :: Int -> StateStore
+initUserState threads = stateSet dispatchState stateEmpty
+  where dispatchState = UserState threads

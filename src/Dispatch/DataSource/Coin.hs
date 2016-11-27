@@ -1,38 +1,97 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveDataTypeable    #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE GADTs                 #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE RecordWildCards       #-}
+{-# LANGUAGE StandaloneDeriving    #-}
+{-# LANGUAGE TypeFamilies          #-}
 
 module Dispatch.DataSource.Coin
   (
-    saveCoin
-  , getCoinScore
-  , getCoinList
+    CoinReq (..)
+  , initCoinState
   ) where
 
-import           Data.Aeson     (toJSON)
-import           Data.Text      (unpack)
+import           Data.Hashable                 (Hashable (..))
+import           Data.Typeable                 (Typeable)
+import           Haxl.Core                     (BlockedFetch (..), DataSource,
+                                                DataSourceName, Flags,
+                                                PerformFetch (..), Show1, State,
+                                                StateKey, StateStore,
+                                                dataSourceName, fetch,
+                                                putFailure, putSuccess, show1,
+                                                stateEmpty, stateSet)
+
+import           Dispatch.DataSource.HTTP.Coin
 import           Dispatch.Types
-import           Dispatch.Utils
-import           Network.Wreq
 
--- post "/api/coins/:name/"
-saveCoin :: UserName -> Coin -> Gateway -> IO (Either ErrResult ScoreResult)
-saveCoin n c gw =
-  responseEither $ asJSON =<< postWith opts uri (toJSON c)
+import qualified Control.Exception             (SomeException, bracket_, try)
 
-  where opts = getOptions gw
-        uri = concat [ getGWUri gw, "/api/coins/", unpack n, "/" ]
+import           Control.Concurrent.Async
+import           Control.Concurrent.QSem
 
--- get "/api/coins/:name/score/"
-getCoinScore :: UserName -> Gateway -> IO (Either ErrResult ScoreResult)
-getCoinScore n gw =
-  responseEither $ asJSON =<< getWith opts uri
+-- Data source implementation.
 
-  where opts = getOptions gw
-        uri = concat [ getGWUri gw, "/api/coins/", unpack n, "/score/" ]
+data CoinReq a where
+  SaveCoin         :: UserName -> Coin -> CoinReq (Either ErrResult ScoreResult)
+  GetCoinScore     :: UserName -> CoinReq (Either ErrResult ScoreResult)
+  GetCoinList      :: UserName -> From -> Size -> CoinReq (ListResult Coin)
 
--- get "/api/coins/:name/"
-getCoinList :: UserName -> From -> Size -> Gateway -> IO (ListResult Coin)
-getCoinList n f s gw =
-  responseListResult "coins" $ asJSON =<< getWith opts uri
+  deriving (Typeable)
 
-  where opts = getOptions gw
-        uri = concat [ getGWUri gw, "/api/coins/", unpack n, "/?from=", show f, "&size=", show s]
+deriving instance Eq (CoinReq a)
+instance Hashable (CoinReq a) where
+  hashWithSalt s (SaveCoin n c)       = hashWithSalt s (13::Int, n, c)
+  hashWithSalt s (GetCoinScore n)     = hashWithSalt s (14::Int, n)
+  hashWithSalt s (GetCoinList n f si) = hashWithSalt s (15::Int, n, f, si)
+
+
+
+deriving instance Show (CoinReq a)
+instance Show1 CoinReq where show1 = show
+
+instance StateKey CoinReq where
+  data State CoinReq = CoinState { numThreads :: Int }
+
+instance DataSourceName CoinReq where
+  dataSourceName _ = "CoinDataSource"
+
+instance AppEnv u => DataSource u CoinReq where
+  fetch = dispatchFetch
+
+dispatchFetch
+  :: AppEnv u => State CoinReq
+  -> Flags
+  -> u
+  -> [BlockedFetch CoinReq]
+  -> PerformFetch
+
+dispatchFetch _state _flags _user blockedFetches = AsyncFetch $ \inner -> do
+  sem <- newQSem $ numThreads _state
+  asyncs <- mapM (fetchAsync sem _user) blockedFetches
+  inner
+  mapM_ wait asyncs
+
+fetchAsync :: AppEnv u => QSem -> u -> BlockedFetch CoinReq -> IO (Async ())
+fetchAsync sem env req = async $
+  Control.Exception.bracket_ (waitQSem sem) (signalQSem sem) $ fetchSync req gw
+
+  where gw   = gateway env
+
+fetchSync :: BlockedFetch CoinReq -> Gateway -> IO ()
+fetchSync (BlockedFetch req rvar) gw = do
+  e <- Control.Exception.try $ fetchReq req gw
+  case e of
+    Left ex -> putFailure rvar (ex :: Control.Exception.SomeException)
+    Right a -> putSuccess rvar a
+
+fetchReq :: CoinReq a -> Gateway -> IO a
+fetchReq (SaveCoin n c)       = saveCoin n c
+fetchReq (GetCoinScore n)     = getCoinScore n
+fetchReq (GetCoinList n f si) = getCoinList n f si
+
+
+initCoinState :: Int -> StateStore
+initCoinState threads = stateSet dispatchState stateEmpty
+  where dispatchState = CoinState threads

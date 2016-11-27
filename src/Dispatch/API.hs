@@ -1,5 +1,18 @@
 module Dispatch.API
   (
+    createUser
+  , getUser
+  , getUsers
+  , verifyPasswd
+  , removeUser
+  , updateUserName
+  , updateUserPasswd
+  , updateUserExtra
+  , removeUserExtra
+  , clearUserExtra
+  , createBind
+  , getBind
+  , deleteBind
   ) where
 
 import           Data.Int            (Int64)

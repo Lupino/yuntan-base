@@ -137,29 +137,5 @@ tests = [ testCreateUser
 main :: IO ()
 main = do
   env0 <- initEnv state userEnv
-  runHaxl env0 $ do
-    r <- testCreateUser
-    when r $ do
-      r1 <- testGetUser
-      when r1 $ do
-        r2 <- testGetUsers
-        when r2 $ do
-          r3 <- testVerifyPasswd
-          when r3 $ do
-            r4 <- testUpdateUserName
-            when r4 $ do
-              r5 <- testUpdateUserPasswd
-              when r5 $ do
-                r6 <- testUpdateUserExtra
-                when r6 $ do
-                  r7 <- testRemoveUserExtra
-                  when r7 $ do
-                    r8 <- testClearUserExtra
-                    when r8 $ do
-                      r9 <- testCreateBind
-                      when r9 $ do
-                        r10 <- testGetBind
-                        when r10 $ do
-                          r11 <- testDeleteBind
-                          when r11 $ do
-                            void $ testRemoveUser
+  ret <- mapM (runHaxl env0) tests
+  print ret

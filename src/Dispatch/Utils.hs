@@ -50,9 +50,9 @@ responseMaybe req = do
 
 headerResponseBody :: ResponseHeaders -> B.ByteString
 headerResponseBody ((n, v):xs) | n == "X-Response-Body-Start" = v
-                               | otherwise = mergeResponseBody xs
+                               | otherwise = headerResponseBody xs
 
-mergeResponseBody [] = B.empty
+headerResponseBody [] = B.empty
 
 tryResponse :: IO (Response a) -> IO (Either ErrResult (Response a))
 tryResponse req = do

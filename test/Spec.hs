@@ -1,30 +1,38 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 import           Dispatch
-import           Haxl.Core     (GenHaxl, StateStore, initEnv, runHaxl,
-                                stateEmpty, stateSet)
+import           Haxl.Core       (GenHaxl, StateStore, initEnv, runHaxl,
+                                  stateEmpty, stateSet)
+import           Haxl.Core.Monad (unsafeLiftIO)
 
-import           Control.Monad (void, when)
-import           Data.Aeson    (Value (..), object, (.=))
-import           Data.Text     (pack)
+import           Control.Monad   (void, when)
+import           Data.Aeson      (Value (..), object, (.=))
+import           Data.Text       (pack)
 
-data UserEnv = UserEnv { getGateway :: Gateway }
+data UserEnv = UserEnv { getGateway  :: Gateway -- for user
+                       , getGateway1 :: Gateway -- for coin
+                       }
   deriving (Show)
 
 instance AppEnv UserEnv where
   gateway env "UserDataSource" = getGateway env
+  gateway env "CoinDataSource" = getGateway1 env
 
 type DispatchM = GenHaxl UserEnv
 
 type Test = DispatchM Bool
 
 userEnv = UserEnv { getGateway = Gateway { getGWUri = "http://127.0.0.1:3300"
-                                         , getGWAppKey = ""
-                                         , getGWAppSecret = ""
+                                         , getGWAppKey = "63dfdfbbdc5bc474b096"
+                                         , getGWAppSecret = "68bb31f42bc29187badb7e182273769ba35a747dbe7c3925d9e23022fc746f"
+                                         }
+                  , getGateway1 = Gateway { getGWUri = "http://127.0.0.1:3300"
+                                         , getGWAppKey = "611f6d62d7f0e0403319"
+                                         , getGWAppSecret = "3341db8549272346f6aa3b4fd38ed413c1629df18a3e90bfe8851d87dd4747"
                                          }
                   }
 
-state = stateSet (initUserState 2) stateEmpty
+state = stateSet (initCoinState 2) $ stateSet (initUserState 2) stateEmpty
 
 testCreateUser :: Test
 testCreateUser = do
@@ -119,6 +127,28 @@ testRemoveUser = do
     Left _  -> return False
     Right _ -> return True
 
+testSaveCoin :: Test
+testSaveCoin = do
+  e <- saveCoin "Lupino" zeroCoin { coinScore = 10 }
+  unsafeLiftIO $ print e
+  case e of
+    Left _  -> return False
+    Right _ -> return True
+
+testGetScore :: Test
+testGetScore = do
+  e <- getCoinScore "Lupino"
+  unsafeLiftIO $ print e
+  case e of
+    Left _  -> return False
+    Right _ -> return True
+
+testGetCoinList :: Test
+testGetCoinList = do
+  r <- getCoinList "Lupino" 0 10
+  unsafeLiftIO $ print r
+  return $ length (getResult r) > 0
+
 tests = [ testCreateUser
         , testGetUser
         , testGetUsers
@@ -132,6 +162,9 @@ tests = [ testCreateUser
         , testGetBind
         , testDeleteBind
         , testRemoveUser
+        , testSaveCoin
+        , testGetScore
+        , testGetCoinList
         ]
 
 main :: IO ()

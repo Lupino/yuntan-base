@@ -27,9 +27,9 @@ userEnv = UserEnv { getGateway = Gateway { getGWUri = "http://127.0.0.1:3300"
                                          , getGWAppSecret = "68bb31f42bc29187badb7e182273769ba35a747dbe7c3925d9e23022fc746f"
                                          }
                   , getGateway1 = Gateway { getGWUri = "http://127.0.0.1:3300"
-                                         , getGWAppKey = "611f6d62d7f0e0403319"
-                                         , getGWAppSecret = "3341db8549272346f6aa3b4fd38ed413c1629df18a3e90bfe8851d87dd4747"
-                                         }
+                                          , getGWAppKey = "611f6d62d7f0e0403319"
+                                          , getGWAppSecret = "3341db8549272346f6aa3b4fd38ed413c1629df18a3e90bfe8851d87dd4747"
+                                          }
                   }
 
 state = stateSet (initCoinState 2) $ stateSet (initUserState 2) stateEmpty

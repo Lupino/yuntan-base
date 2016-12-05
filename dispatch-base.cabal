@@ -39,7 +39,7 @@ library
                      , wreq
                      , http-client
                      , lens
-                     , unordered-containers
+                     , dispatch-common
   default-language:    Haskell2010
 
 test-suite dispatch-test

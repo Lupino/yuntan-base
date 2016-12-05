@@ -8,7 +8,7 @@ module Dispatch.Types.Coin
   , CoinType (..)
   , zeroCoin
   , Score
-  , ScoreResult
+  , ScoreResult (..)
   ) where
 
 import           Data.Aeson              (FromJSON (..), ToJSON (..), object,

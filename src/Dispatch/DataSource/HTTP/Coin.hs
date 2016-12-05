@@ -7,9 +7,11 @@ module Dispatch.DataSource.HTTP.Coin
   , getCoinList
   ) where
 
-import           Data.Aeson     (toJSON)
-import           Data.Text      (unpack)
+import           Data.Aeson                (toJSON)
+import           Data.Text                 (unpack)
 import           Dispatch.Types
+import           Dispatch.Types.ListResult (From, ListResult, Size)
+import           Dispatch.Types.Result     (ErrResult, OkResult)
 import           Dispatch.Utils
 import           Network.Wreq
 

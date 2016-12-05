@@ -17,9 +17,11 @@ module Dispatch.DataSource.HTTP.User
   , deleteBind
   ) where
 
-import           Data.Aeson     (encode)
-import           Data.Text      (unpack)
+import           Data.Aeson                (encode)
+import           Data.Text                 (unpack)
 import           Dispatch.Types
+import           Dispatch.Types.ListResult (From, ListResult, Size)
+import           Dispatch.Types.Result     (ErrResult, OkResult)
 import           Dispatch.Utils
 import           Network.Wreq
 

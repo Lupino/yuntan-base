@@ -19,13 +19,15 @@ module Dispatch.API
   , getCoinList
   ) where
 
-import           Data.Int            (Int64)
-import           Haxl.Core           (dataFetch, uncachedRequest)
+import           Data.Int                  (Int64)
+import           Haxl.Core                 (dataFetch, uncachedRequest)
 
 import           Dispatch.DataSource
 import           Dispatch.Types
+import           Dispatch.Types.ListResult (From, ListResult, Size)
+import           Dispatch.Types.Result     (ErrResult, OkResult)
 
-import           Haxl.Core           (GenHaxl)
+import           Haxl.Core                 (GenHaxl)
 
 createUser       :: AppEnv u => UserName -> Password -> GenHaxl u (Either ErrResult User)
 getUser          :: AppEnv u => UserName -> GenHaxl u (Either ErrResult User)

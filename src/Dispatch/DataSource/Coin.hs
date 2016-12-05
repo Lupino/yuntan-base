@@ -25,6 +25,8 @@ import           Haxl.Core                     (BlockedFetch (..), DataSource,
 
 import           Dispatch.DataSource.HTTP.Coin
 import           Dispatch.Types
+import           Dispatch.Types.ListResult     (From, ListResult, Size)
+import           Dispatch.Types.Result         (ErrResult, OkResult)
 
 import qualified Control.Exception             (SomeException, bracket_, try)
 

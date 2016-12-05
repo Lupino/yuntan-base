@@ -32,7 +32,9 @@ import           Network.Wreq              (Options, Response, defaults, header,
 
 getOptions :: Gateway -> Options
 getOptions (Gateway { getGWAppKey = key, getGWAppSecret = secret }) =
-  defaults & header "X-APP-KEY" .~ [B.pack key] & header "X-APP-SECRET" .~ [B.pack secret]
+  defaults & header "X-APP-KEY" .~ [B.pack key]
+           & header "X-APP-SECRET" .~ [B.pack secret]
+           & header "User-Agent" .~ ["haskell dispatch-base-0.1.0.0"]
 
 t2b :: Text -> B.ByteString
 t2b = B.pack . unpack

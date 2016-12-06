@@ -18,10 +18,8 @@ import           Data.Typeable                 (Typeable)
 import           Haxl.Core                     (BlockedFetch (..), DataSource,
                                                 DataSourceName, Flags,
                                                 PerformFetch (..), Show1, State,
-                                                StateKey, StateStore,
-                                                dataSourceName, fetch,
-                                                putFailure, putSuccess, show1,
-                                                stateEmpty, stateSet)
+                                                StateKey, dataSourceName, fetch,
+                                                putFailure, putSuccess, show1)
 
 import           Dispatch.DataSource.HTTP.Coin
 import           Dispatch.Types

@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Dispatch.DataSource.HTTP.User
+module Dispatch.DS.HTTP.User
   (
     createUser
   , getUser
@@ -19,10 +19,11 @@ module Dispatch.DataSource.HTTP.User
 
 import           Data.Aeson                (encode)
 import           Data.Text                 (unpack)
-import           Dispatch.Types
+import           Dispatch.Types.Internal
 import           Dispatch.Types.ListResult (From, ListResult, Size)
 import           Dispatch.Types.Result     (ErrResult, OkResult)
-import           Dispatch.Utils
+import           Dispatch.Types.User
+import           Dispatch.Utils.Wreq
 import           Network.Wreq
 
 --   post   "/api/users/"

@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Dispatch.DataSource.HTTP.Coin
+module Dispatch.DS.HTTP.Coin
   (
     saveCoin
   , getCoinScore
@@ -9,10 +9,12 @@ module Dispatch.DataSource.HTTP.Coin
 
 import           Data.Aeson                (toJSON)
 import           Data.Text                 (unpack)
-import           Dispatch.Types
+import           Dispatch.Types.Coin
+import           Dispatch.Types.Internal
 import           Dispatch.Types.ListResult (From, ListResult, Size)
 import           Dispatch.Types.Result     (ErrResult, OkResult)
-import           Dispatch.Utils
+import           Dispatch.Types.User       (UserName)
+import           Dispatch.Utils.Wreq
 import           Network.Wreq
 
 -- post "/api/coins/:name/"

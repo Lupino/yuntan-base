@@ -1,4 +1,4 @@
-module Dispatch.API
+module Dispatch.API.User
   (
     createUser
   , getUser
@@ -13,19 +13,16 @@ module Dispatch.API
   , createBind
   , getBind
   , deleteBind
-
-  , saveCoin
-  , getCoinScore
-  , getCoinList
   ) where
 
 import           Data.Int                  (Int64)
 import           Haxl.Core                 (dataFetch, uncachedRequest)
 
-import           Dispatch.DataSource
-import           Dispatch.Types
+import           Dispatch.DS.User
+import           Dispatch.Types.Internal
 import           Dispatch.Types.ListResult (From, ListResult, Size)
 import           Dispatch.Types.Result     (ErrResult, OkResult)
+import           Dispatch.Types.User
 
 import           Haxl.Core                 (GenHaxl)
 
@@ -43,10 +40,6 @@ createBind       :: AppEnv u => UserName -> Service -> ServiceName -> Extra -> G
 getBind          :: AppEnv u => ServiceName -> GenHaxl u (Either ErrResult Bind)
 deleteBind       :: AppEnv u => BindID -> GenHaxl u (Either ErrResult OkResult)
 
-saveCoin         :: AppEnv u => UserName -> Coin -> GenHaxl u (Either ErrResult ScoreResult)
-getCoinScore     :: AppEnv u => UserName -> GenHaxl u (Either ErrResult ScoreResult)
-getCoinList      :: AppEnv u => UserName -> From -> Size -> GenHaxl u (ListResult Coin)
-
 createUser n p        = uncachedRequest (CreateUser n p)
 getUser n             = dataFetch (GetUser n)
 getUsers f si         = dataFetch (GetUsers f si)
@@ -60,7 +53,3 @@ clearUserExtra n      = uncachedRequest (ClearUserExtra n)
 createBind n se sn ex = uncachedRequest (CreateBind n se sn ex)
 getBind sn            = dataFetch (GetBind sn)
 deleteBind bid        = uncachedRequest (DeleteBind bid)
-
-saveCoin n c          = uncachedRequest (SaveCoin n c)
-getCoinScore n        = dataFetch (GetCoinScore n)
-getCoinList n f si    = dataFetch (GetCoinList n f si)

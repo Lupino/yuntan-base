@@ -7,26 +7,28 @@
 {-# LANGUAGE StandaloneDeriving    #-}
 {-# LANGUAGE TypeFamilies          #-}
 
-module Dispatch.DataSource.Coin
+module Dispatch.DS.Coin
   (
     CoinReq (..)
   , initCoinState
   ) where
 
-import           Data.Hashable                 (Hashable (..))
-import           Data.Typeable                 (Typeable)
-import           Haxl.Core                     (BlockedFetch (..), DataSource,
-                                                DataSourceName, Flags,
-                                                PerformFetch (..), Show1, State,
-                                                StateKey, dataSourceName, fetch,
-                                                putFailure, putSuccess, show1)
+import           Data.Hashable             (Hashable (..))
+import           Data.Typeable             (Typeable)
+import           Haxl.Core                 (BlockedFetch (..), DataSource,
+                                            DataSourceName, Flags,
+                                            PerformFetch (..), Show1, State,
+                                            StateKey, dataSourceName, fetch,
+                                            putFailure, putSuccess, show1)
 
-import           Dispatch.DataSource.HTTP.Coin
-import           Dispatch.Types
-import           Dispatch.Types.ListResult     (From, ListResult, Size)
-import           Dispatch.Types.Result         (ErrResult, OkResult)
+import           Dispatch.DS.HTTP.Coin
+import           Dispatch.Types.Coin
+import           Dispatch.Types.Internal
+import           Dispatch.Types.ListResult (From, ListResult, Size)
+import           Dispatch.Types.Result     (ErrResult, OkResult)
+import           Dispatch.Types.User       (UserName)
 
-import qualified Control.Exception             (SomeException, bracket_, try)
+import qualified Control.Exception         (SomeException, bracket_, try)
 
 import           Control.Concurrent.Async
 import           Control.Concurrent.QSem

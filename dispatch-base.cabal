@@ -15,19 +15,17 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Dispatch
+  exposed-modules:     Dispatch.Base
                      , Dispatch.Types.Internal
                      , Dispatch.Types.User
                      , Dispatch.Types.Coin
-                     , Dispatch.Types
-                     , Dispatch.DataSource
-                     , Dispatch.DataSource.User
-                     , Dispatch.DataSource.Coin
-                     , Dispatch.DataSource.HTTP.User
-                     , Dispatch.DataSource.HTTP.Coin
-                     , Dispatch.API
-
-                     , Dispatch.Utils
+                     , Dispatch.DS.User
+                     , Dispatch.DS.Coin
+                     , Dispatch.DS.HTTP.User
+                     , Dispatch.DS.HTTP.Coin
+                     , Dispatch.API.Coin
+                     , Dispatch.API.User
+                     , Dispatch.Utils.Wreq
   build-depends:       base >= 4.7 && < 5
                      , text
                      , hashable

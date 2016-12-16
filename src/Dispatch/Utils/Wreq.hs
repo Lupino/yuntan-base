@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-module Dispatch.Utils
+module Dispatch.Utils.Wreq
   (
     getOptions
   , t2b
@@ -20,7 +20,7 @@ import qualified Data.ByteString.Char8     as B (ByteString, empty, pack,
                                                  unpack)
 import qualified Data.ByteString.Lazy      as LB (ByteString, fromStrict)
 import           Data.Text                 (Text, unpack)
-import           Dispatch.Types            (Gateway (..))
+import           Dispatch.Types.Internal   (Gateway (..))
 import           Dispatch.Types.ListResult (ListResult, emptyListResult,
                                             toListResult)
 import           Dispatch.Types.Result     (ErrResult, err)

@@ -1,13 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import           Dispatch
-import           Haxl.Core       (GenHaxl, StateStore, initEnv, runHaxl,
-                                  stateEmpty, stateSet)
-import           Haxl.Core.Monad (unsafeLiftIO)
+import           Dispatch.Base
+import           Dispatch.Types.ListResult
+import           Haxl.Core                 (GenHaxl, StateStore, initEnv,
+                                            runHaxl, stateEmpty, stateSet)
+import           Haxl.Core.Monad           (unsafeLiftIO)
 
-import           Control.Monad   (void, when)
-import           Data.Aeson      (Value (..), object, (.=))
-import           Data.Text       (pack)
+import           Control.Monad             (void, when)
+import           Data.Aeson                (Value (..), object, (.=))
+import           Data.Text                 (pack)
 
 data UserEnv = UserEnv { getGateway  :: Gateway -- for user
                        , getGateway1 :: Gateway -- for coin

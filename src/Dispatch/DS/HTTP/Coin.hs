@@ -9,6 +9,7 @@ module Dispatch.DS.HTTP.Coin
 
 import           Data.Aeson                (toJSON)
 import           Data.Text                 (unpack)
+import qualified Data.Text.Lazy            as LT (pack, unpack)
 import           Dispatch.Types.Coin
 import           Dispatch.Types.Internal
 import           Dispatch.Types.ListResult (From, ListResult, Size)
@@ -19,15 +20,19 @@ import           Network.Wreq
 
 -- post "/api/coins/:name/"
 saveCoin :: UserName -> Coin -> Gateway -> IO (Either ErrResult ScoreResult)
-saveCoin n c gw =
+saveCoin n c gw = do
+  opts <- getOptionsAndSign [ ("score", LT.pack $ show score)
+                            , ("type", LT.pack $ show tp)
+                            , ("desc", LT.pack $ unpack desc)
+                            , ("created_at", LT.pack $ show ct)
+                            ] gw
   responseEither $ asJSON =<< postWith opts uri [ "score" := score
                                                 , "type" := show tp
                                                 , "desc" := desc
                                                 , "created_at" := ct
                                                 ]
 
-  where opts = getOptions gw
-        uri = concat [ getGWUri gw, "/api/coins/", unpack n, "/" ]
+  where uri = concat [ getGWUri gw, "/api/coins/", unpack n, "/" ]
 
         score = coinScore c
         tp = coinType c

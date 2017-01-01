@@ -38,6 +38,7 @@ library
                      , http-client
                      , lens
                      , dispatch-common
+                     , unix-time
   default-language:    Haskell2010
 
 test-suite dispatch-test

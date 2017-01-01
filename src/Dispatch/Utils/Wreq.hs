@@ -3,6 +3,7 @@
 module Dispatch.Utils.Wreq
   (
     getOptions
+  , getOptionsAndSign
   , t2b
   , responseValue
   , responseMaybe
@@ -20,10 +21,13 @@ import qualified Data.ByteString.Char8     as B (ByteString, empty, pack,
                                                  unpack)
 import qualified Data.ByteString.Lazy      as LB (ByteString, fromStrict)
 import           Data.Text                 (Text, unpack)
+import qualified Data.Text.Lazy            as LT (Text, pack, unpack)
+import           Data.UnixTime
 import           Dispatch.Types.Internal   (Gateway (..))
 import           Dispatch.Types.ListResult (ListResult, emptyListResult,
                                             toListResult)
 import           Dispatch.Types.Result     (ErrResult, err)
+import           Dispatch.Utils.Signature  (signParams)
 import           Network.HTTP.Client       (HttpException (StatusCodeException))
 import           Network.HTTP.Types        (ResponseHeaders)
 import           Network.Wreq              (Options, Response, defaults, header,
@@ -31,10 +35,19 @@ import           Network.Wreq              (Options, Response, defaults, header,
 
 
 getOptions :: Gateway -> Options
-getOptions (Gateway { getGWAppKey = key, getGWAppSecret = secret }) =
-  defaults & header "X-APP-KEY" .~ [B.pack key]
-           & header "X-APP-SECRET" .~ [B.pack secret]
+getOptions (Gateway { getGWAppKey = key }) =
+  defaults & header "X-REQUEST-KEY" .~ [B.pack key]
            & header "User-Agent" .~ ["haskell dispatch-base-0.1.0.0"]
+
+getOptionsAndSign :: [(LT.Text, LT.Text)] -> Gateway -> IO Options
+getOptionsAndSign params (Gateway { getGWAppKey = key, getGWAppSecret = sec }) = do
+  t <- show . toEpochTime <$> getUnixTime
+  let sign = signParams (B.pack sec) (("timestamp", LT.pack t):params)
+      opts = defaults & header "X-REQUEST-KEY" .~ [B.pack key]
+                      & header "X-REQUEST-SIGNATURE" .~ [sign]
+                      & header "X-REQUEST-TIME" .~ [B.pack t]
+                      & header "User-Agent" .~ ["haskell dispatch-base-0.1.0.0"]
+  return opts
 
 t2b :: Text -> B.ByteString
 t2b = B.pack . unpack

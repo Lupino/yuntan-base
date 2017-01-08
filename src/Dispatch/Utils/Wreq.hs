@@ -4,7 +4,6 @@ module Dispatch.Utils.Wreq
   (
     getOptions
   , getOptionsAndSign
-  , t2b
   , responseValue
   , responseMaybe
   , responseEither
@@ -48,9 +47,6 @@ getOptionsAndSign params (Gateway { getGWAppKey = key, getGWAppSecret = sec }) =
                       & header "X-REQUEST-TIME" .~ [B.pack t]
                       & header "User-Agent" .~ ["haskell dispatch-base-0.1.0.0"]
   return opts
-
-t2b :: Text -> B.ByteString
-t2b = B.pack . unpack
 
 responseValue :: IO (Response a) -> IO a
 responseValue req = do

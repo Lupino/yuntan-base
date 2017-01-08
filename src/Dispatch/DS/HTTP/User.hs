@@ -21,6 +21,7 @@ import           Data.Aeson                (encode)
 import qualified Data.ByteString.Char8     as B (unpack)
 import qualified Data.ByteString.Lazy      as LB (toStrict)
 import           Data.Text                 (unpack)
+import           Data.Text.Encoding        (encodeUtf8)
 import qualified Data.Text.Lazy            as LT (pack, unpack)
 import           Dispatch.Types.Internal
 import           Dispatch.Types.ListResult (From, ListResult, Size)
@@ -35,8 +36,8 @@ createUser n p gw = do
   opts <- getOptionsAndSign [ ("username", LT.pack $ unpack n)
                             , ("passwd", LT.pack $ unpack p)
                             ] gw
-  responseEither $ asJSON =<< postWith opts uri [ "username" := t2b n
-                                                , "passwd"   := t2b p
+  responseEither $ asJSON =<< postWith opts uri [ "username" := encodeUtf8 n
+                                                , "passwd"   := encodeUtf8 p
                                                 ]
 
   where uri = concat [ getGWUri gw, "/api/users/" ]
@@ -60,7 +61,7 @@ getUsers f s gw = responseListResult "users" $ asJSON =<< getWith opts uri
 verifyPasswd :: UserName -> Password -> Gateway -> IO (Either ErrResult OkResult)
 verifyPasswd n p gw = do
   opts <- getOptionsAndSign [ ("passwd", LT.pack $ unpack p) ] gw
-  responseEither $ asJSON =<< postWith opts uri [ "passwd" := t2b p ]
+  responseEither $ asJSON =<< postWith opts uri [ "passwd" := encodeUtf8 p ]
 
   where uri = concat [ getGWUri gw, "/api/users/", unpack n, "/verify" ]
 
@@ -76,7 +77,7 @@ removeUser n gw = do
 updateUserName :: UserName -> UserName -> Gateway -> IO (Either ErrResult OkResult)
 updateUserName n n1 gw = do
   opts <- getOptionsAndSign [ ("username", LT.pack $ unpack n1) ] gw
-  responseEither $ asJSON =<< postWith opts uri [ "username" := t2b n1 ]
+  responseEither $ asJSON =<< postWith opts uri [ "username" := encodeUtf8 n1 ]
 
   where uri = concat [ getGWUri gw, "/api/users/", unpack n, "/" ]
 
@@ -84,7 +85,7 @@ updateUserName n n1 gw = do
 updateUserPasswd :: UserName -> Password -> Gateway -> IO (Either ErrResult OkResult)
 updateUserPasswd n p gw = do
   opts <- getOptionsAndSign [ ("passwd", LT.pack $ unpack p) ] gw
-  responseEither $ asJSON =<< postWith opts uri [ "passwd" := t2b p ]
+  responseEither $ asJSON =<< postWith opts uri [ "passwd" := encodeUtf8 p ]
 
   where uri = concat [ getGWUri gw, "/api/users/", unpack n, "/passwd" ]
 
@@ -121,8 +122,8 @@ createBind n s sn ex gw = do
                             , ("name", LT.pack $ unpack sn)
                             , ("extra", LT.pack $ B.unpack $ LB.toStrict ex')
                             ] gw
-  responseEither $ asJSON =<< postWith opts uri [ "service" := t2b s
-                                                , "name"    := t2b sn
+  responseEither $ asJSON =<< postWith opts uri [ "service" := encodeUtf8 s
+                                                , "name"    := encodeUtf8 sn
                                                 , "extra"   := ex'
                                                 ]
 

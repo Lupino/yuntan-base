@@ -41,16 +41,18 @@ saveCoin n c gw = do
 
 -- get "/api/coins/:name/score/"
 getCoinScore :: UserName -> Gateway -> IO (Either ErrResult ScoreResult)
-getCoinScore n gw =
+getCoinScore n gw = do
+  opts <- getOptionsAndSign [] gw
   responseEither $ asJSON =<< getWith opts uri
 
-  where opts = getOptions gw
-        uri = concat [ getGWUri gw, "/api/coins/", unpack n, "/score/" ]
+  where uri = concat [ getGWUri gw, "/api/coins/", unpack n, "/score/" ]
 
 -- get "/api/coins/:name/"
 getCoinList :: UserName -> From -> Size -> Gateway -> IO (ListResult Coin)
-getCoinList n f s gw =
+getCoinList n f s gw = do
+  opts <- getOptionsAndSign [ ("from", LT.pack $ show f)
+                            , ("size", LT.pack $ show s)
+                            ] gw
   responseListResult "coins" $ asJSON =<< getWith opts uri
 
-  where opts = getOptions gw
-        uri = concat [ getGWUri gw, "/api/coins/", unpack n, "/?from=", show f, "&size=", show s]
+  where uri = concat [ getGWUri gw, "/api/coins/", unpack n, "/?from=", show f, "&size=", show s]

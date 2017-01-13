@@ -22,7 +22,7 @@ import qualified Data.ByteString.Char8     as B (unpack)
 import qualified Data.ByteString.Lazy      as LB (toStrict)
 import           Data.Text                 (unpack)
 import           Data.Text.Encoding        (encodeUtf8)
-import qualified Data.Text.Lazy            as LT (pack, unpack)
+import qualified Data.Text.Lazy            as LT (fromStrict, pack, unpack)
 import           Dispatch.Types.Internal
 import           Dispatch.Types.ListResult (From, ListResult, Size)
 import           Dispatch.Types.Result     (ErrResult, OkResult)
@@ -33,8 +33,8 @@ import           Network.Wreq
 --   post   "/api/users/"
 createUser :: UserName -> Password -> Gateway -> IO (Either ErrResult User)
 createUser n p gw = do
-  opts <- getOptionsAndSign [ ("username", LT.pack $ unpack n)
-                            , ("passwd", LT.pack $ unpack p)
+  opts <- getOptionsAndSign [ ("username", LT.fromStrict n)
+                            , ("passwd", LT.fromStrict p)
                             ] gw
   responseEither $ asJSON =<< postWith opts uri [ "username" := encodeUtf8 n
                                                 , "passwd"   := encodeUtf8 p
@@ -44,23 +44,26 @@ createUser n p gw = do
 
 --   get    "/api/users/:uidOrName/"
 getUser :: UserName -> Gateway -> IO (Either ErrResult User)
-getUser n gw =
+getUser n gw = do
+  opts <- getOptionsAndSign [] gw
   responseEither $ asJSON =<< getWith opts uri
 
-  where opts = getOptions gw
-        uri = concat [ getGWUri gw, "/api/users/", unpack n, "/" ]
+  where uri = concat [ getGWUri gw, "/api/users/", unpack n, "/" ]
 
 --   get    "/api/users/"
 getUsers :: From -> Size -> Gateway -> IO (ListResult User)
-getUsers f s gw = responseListResult "users" $ asJSON =<< getWith opts uri
+getUsers f s gw = do
+  opts <- getOptionsAndSign [ ("from", LT.pack $ show f)
+                            , ("size", LT.pack $ show s)
+                            ] gw
+  responseListResult "users" $ asJSON =<< getWith opts uri
 
-  where opts = getOptions gw
-        uri = concat [ getGWUri gw, "/api/users/?from=", show f, "&size=", show s]
+  where uri = concat [ getGWUri gw, "/api/users/?from=", show f, "&size=", show s]
 
 --   post   "/api/users/:uidOrName/verify"
 verifyPasswd :: UserName -> Password -> Gateway -> IO (Either ErrResult OkResult)
 verifyPasswd n p gw = do
-  opts <- getOptionsAndSign [ ("passwd", LT.pack $ unpack p) ] gw
+  opts <- getOptionsAndSign [ ("passwd", LT.fromStrict p) ] gw
   responseEither $ asJSON =<< postWith opts uri [ "passwd" := encodeUtf8 p ]
 
   where uri = concat [ getGWUri gw, "/api/users/", unpack n, "/verify" ]
@@ -76,7 +79,7 @@ removeUser n gw = do
 --   post   "/api/users/:uidOrName/"
 updateUserName :: UserName -> UserName -> Gateway -> IO (Either ErrResult OkResult)
 updateUserName n n1 gw = do
-  opts <- getOptionsAndSign [ ("username", LT.pack $ unpack n1) ] gw
+  opts <- getOptionsAndSign [ ("username", LT.fromStrict n1) ] gw
   responseEither $ asJSON =<< postWith opts uri [ "username" := encodeUtf8 n1 ]
 
   where uri = concat [ getGWUri gw, "/api/users/", unpack n, "/" ]
@@ -84,7 +87,7 @@ updateUserName n n1 gw = do
 --   post   "/api/users/:uidOrName/passwd"
 updateUserPasswd :: UserName -> Password -> Gateway -> IO (Either ErrResult OkResult)
 updateUserPasswd n p gw = do
-  opts <- getOptionsAndSign [ ("passwd", LT.pack $ unpack p) ] gw
+  opts <- getOptionsAndSign [ ("passwd", LT.fromStrict p) ] gw
   responseEither $ asJSON =<< postWith opts uri [ "passwd" := encodeUtf8 p ]
 
   where uri = concat [ getGWUri gw, "/api/users/", unpack n, "/passwd" ]
@@ -118,8 +121,8 @@ clearUserExtra n gw = do
 --   post   "/api/users/:uidOrName/binds"
 createBind :: UserName -> Service -> ServiceName -> Extra -> Gateway -> IO (Either ErrResult Bind)
 createBind n s sn ex gw = do
-  opts <- getOptionsAndSign [ ("service", LT.pack $ unpack s)
-                            , ("name", LT.pack $ unpack sn)
+  opts <- getOptionsAndSign [ ("service", LT.fromStrict s)
+                            , ("name", LT.fromStrict sn)
                             , ("extra", LT.pack $ B.unpack $ LB.toStrict ex')
                             ] gw
   responseEither $ asJSON =<< postWith opts uri [ "service" := encodeUtf8 s
@@ -132,11 +135,11 @@ createBind n s sn ex gw = do
 
 --   get    "/api/binds/"
 getBind :: ServiceName -> Gateway -> IO (Either ErrResult Bind)
-getBind sn gw =
+getBind sn gw = do
+  opts <- getOptionsAndSign [ ("name", LT.fromStrict sn) ] gw
   responseEither $ asJSON =<< getWith opts uri
 
-  where opts = getOptions gw
-        uri = concat [ getGWUri gw, "/api/binds/?name=", unpack sn ]
+  where uri = concat [ getGWUri gw, "/api/binds/?name=", unpack sn ]
 
 --   delete "/api/binds/:bind_id"
 deleteBind :: BindID -> Gateway -> IO (Either ErrResult OkResult)

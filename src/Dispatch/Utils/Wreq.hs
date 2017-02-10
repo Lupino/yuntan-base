@@ -41,7 +41,7 @@ getOptions (Gateway { getGWAppKey = key }) =
 getOptionsAndSign :: [(LT.Text, LT.Text)] -> Gateway -> IO Options
 getOptionsAndSign params (Gateway { getGWAppKey = key, getGWAppSecret = sec }) = do
   t <- show . toEpochTime <$> getUnixTime
-  let sign = signParams (B.pack sec) (("timestamp", LT.pack t):params)
+  let sign = signParams (B.pack sec) (("timestamp", LT.pack t):("key", LT.pack key):params)
       opts = defaults & header "X-REQUEST-KEY" .~ [B.pack key]
                       & header "X-REQUEST-SIGNATURE" .~ [sign]
                       & header "X-REQUEST-TIME" .~ [B.pack t]

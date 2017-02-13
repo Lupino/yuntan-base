@@ -8,6 +8,7 @@ module Dispatch.Utils.Wreq
   , responseValue
   , responseMaybe
   , responseEither
+  , responseEither'
   , responseListResult
   , tryResponse
   ) where
@@ -59,6 +60,7 @@ getOptionsAndSign' (Object v) (Gateway { getGWAppKey = key, getGWAppSecret = sec
                       & header "X-REQUEST-SIGNATURE" .~ [sign]
                       & header "X-REQUEST-TIME" .~ [B.pack t]
                       & header "User-Agent" .~ ["haskell dispatch-base-0.1.0.0"]
+                      & header "Content-Type" .~ ["application/json"]
   return opts
 
 responseValue :: IO (Response a) -> IO a
@@ -97,6 +99,13 @@ responseEither req = do
   case rsp of
     Left e  -> return $ Left e
     Right r -> return . Right $ r ^. responseBody
+
+responseEither' :: IO (Response LB.ByteString) -> IO (Either ErrResult ())
+responseEither' req = do
+  rsp <- tryResponse req
+  case rsp of
+    Left e  -> return $ Left e
+    Right _ -> return $ Right ()
 
 responseListResult :: FromJSON a => Text -> IO (Response Value) -> IO (ListResult a)
 responseListResult okey req = do

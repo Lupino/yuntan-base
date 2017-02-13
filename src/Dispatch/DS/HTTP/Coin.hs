@@ -71,6 +71,6 @@ getCoinInfo n gw = do
 setCoinInfo :: UserName -> Value -> Gateway -> IO (Either ErrResult ())
 setCoinInfo n v gw = do
   opts <- getOptionsAndSign' v gw
-  responseEither $ asJSON =<< putWith opts uri (encode v)
+  responseEither' $ putWith opts uri (encode v)
 
   where uri = concat [ getGWUri gw, "/api/coins/", unpack n, "/info/" ]

@@ -5,9 +5,11 @@ module Dispatch.DS.HTTP.Coin
     saveCoin
   , getCoinScore
   , getCoinList
+  , getCoinInfo
+  , setCoinInfo
   ) where
 
-import           Data.Aeson                (toJSON)
+import           Data.Aeson                (Value, encode, toJSON)
 import           Data.Text                 (unpack)
 import qualified Data.Text.Lazy            as LT (pack, unpack)
 import           Dispatch.Types.Coin
@@ -56,3 +58,19 @@ getCoinList n f s gw = do
   responseListResult "coins" $ asJSON =<< getWith opts uri
 
   where uri = concat [ getGWUri gw, "/api/coins/", unpack n, "/?from=", show f, "&size=", show s]
+
+-- get "/api/coins/:name/info/"
+getCoinInfo :: UserName -> Gateway -> IO (Either ErrResult CoinInfo)
+getCoinInfo n gw = do
+  opts <- getOptionsAndSign [] gw
+  responseEither $ asJSON =<< getWith opts uri
+
+  where uri = concat [ getGWUri gw, "/api/coins/", unpack n, "/info/" ]
+
+-- put "/api/coins/:name/info/"
+setCoinInfo :: UserName -> Value -> Gateway -> IO (Either ErrResult ())
+setCoinInfo n v gw = do
+  opts <- getOptionsAndSign' v gw
+  responseEither $ asJSON =<< putWith opts uri (encode v)
+
+  where uri = concat [ getGWUri gw, "/api/coins/", unpack n, "/info/" ]

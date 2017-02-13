@@ -39,6 +39,7 @@ library
                      , lens
                      , dispatch-common
                      , unix-time
+                     , unordered-containers
   default-language:    Haskell2010
 
 test-suite dispatch-test

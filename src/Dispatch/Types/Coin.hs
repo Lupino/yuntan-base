@@ -9,10 +9,12 @@ module Dispatch.Types.Coin
   , zeroCoin
   , Score
   , ScoreResult (..)
+  , CoinInfo (..)
   ) where
 
-import           Data.Aeson              (FromJSON (..), ToJSON (..), object,
-                                          withObject, (.:), (.=))
+import           Data.Aeson              (FromJSON (..), ToJSON (..),
+                                          Value (..), object, withObject, (.!=),
+                                          (.:), (.:?), (.=))
 import           Data.Hashable           (Hashable (..))
 import           Data.Int                (Int64)
 import           Data.Text               (Text)
@@ -71,4 +73,23 @@ instance FromJSON ScoreResult where
     return ScoreResult{..}
 
 instance ToJSON ScoreResult where
-  toJSON ScoreResult{..} = object [ "score"   .= getScore ]
+  toJSON ScoreResult{..} = object [ "score" .= getScore ]
+
+data CoinInfo = CoinInfo { infoName  :: String
+                         , infoScore :: Score
+                         , info      :: Value
+                         }
+  deriving (Show)
+
+instance FromJSON CoinInfo where
+  parseJSON = withObject "CoinInfo" $ \o -> do
+    infoName  <- o .:  "name"
+    infoScore <- o .:  "score"
+    info      <- o .:? "info" .!= Null
+    return CoinInfo{..}
+
+instance ToJSON CoinInfo where
+  toJSON CoinInfo{..} = object [ "score" .= infoScore
+                               , "name"  .= infoName
+                               , "info"  .= info
+                               ]

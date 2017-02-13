@@ -13,6 +13,7 @@ module Dispatch.DS.Coin
   , initCoinState
   ) where
 
+import           Data.Aeson                (Value)
 import           Data.Hashable             (Hashable (..))
 import           Data.Typeable             (Typeable)
 import           Haxl.Core                 (BlockedFetch (..), DataSource,
@@ -39,15 +40,18 @@ data CoinReq a where
   SaveCoin         :: UserName -> Coin -> CoinReq (Either ErrResult ScoreResult)
   GetCoinScore     :: UserName -> CoinReq (Either ErrResult ScoreResult)
   GetCoinList      :: UserName -> From -> Size -> CoinReq (ListResult Coin)
+  GetCoinInfo      :: UserName -> CoinReq (Either ErrResult CoinInfo)
+  SetCoinInfo      :: UserName -> Value -> CoinReq (Either ErrResult ())
 
   deriving (Typeable)
 
 deriving instance Eq (CoinReq a)
 instance Hashable (CoinReq a) where
-  hashWithSalt s (SaveCoin n c)       = hashWithSalt s (13::Int, n, c)
-  hashWithSalt s (GetCoinScore n)     = hashWithSalt s (14::Int, n)
-  hashWithSalt s (GetCoinList n f si) = hashWithSalt s (15::Int, n, f, si)
-
+  hashWithSalt s (SaveCoin n c)       = hashWithSalt s (0::Int, n, c)
+  hashWithSalt s (GetCoinScore n)     = hashWithSalt s (1::Int, n)
+  hashWithSalt s (GetCoinList n f si) = hashWithSalt s (2::Int, n, f, si)
+  hashWithSalt s (GetCoinInfo n)      = hashWithSalt s (3::Int, n)
+  hashWithSalt s (SetCoinInfo n i)    = hashWithSalt s (4::Int, n, i)
 
 
 deriving instance Show (CoinReq a)
@@ -60,16 +64,16 @@ instance DataSourceName CoinReq where
   dataSourceName _ = "CoinDataSource"
 
 instance AppEnv u => DataSource u CoinReq where
-  fetch = dispatchFetch
+  fetch = doFetch
 
-dispatchFetch
+doFetch
   :: AppEnv u => State CoinReq
   -> Flags
   -> u
   -> [BlockedFetch CoinReq]
   -> PerformFetch
 
-dispatchFetch _state _flags _user blockedFetches = AsyncFetch $ \inner -> do
+doFetch _state _flags _user blockedFetches = AsyncFetch $ \inner -> do
   sem <- newQSem $ numThreads _state
   asyncs <- mapM (fetchAsync sem _user) blockedFetches
   inner
@@ -92,6 +96,8 @@ fetchReq :: CoinReq a -> Gateway -> IO a
 fetchReq (SaveCoin n c)       = saveCoin n c
 fetchReq (GetCoinScore n)     = getCoinScore n
 fetchReq (GetCoinList n f si) = getCoinList n f si
+fetchReq (GetCoinInfo n)      = getCoinInfo n
+fetchReq (SetCoinInfo n i)    = setCoinInfo n i
 
 
 initCoinState :: Int -> State CoinReq

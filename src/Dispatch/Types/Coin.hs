@@ -10,6 +10,7 @@ module Dispatch.Types.Coin
   , Score
   , ScoreResult (..)
   , CoinInfo (..)
+  , coinInfo
   ) where
 
 import           Data.Aeson              (FromJSON (..), ToJSON (..),
@@ -93,3 +94,6 @@ instance ToJSON CoinInfo where
                                , "name"  .= infoName
                                , "info"  .= info
                                ]
+
+coinInfo :: String -> CoinInfo
+coinInfo infoName = CoinInfo { infoScore = 0, info = Null, .. }

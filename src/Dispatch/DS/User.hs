@@ -17,9 +17,9 @@ import           Data.Hashable             (Hashable (..))
 import           Data.Typeable             (Typeable)
 import           Haxl.Core                 (BlockedFetch (..), DataSource,
                                             DataSourceName, Flags,
-                                            PerformFetch (..), Show1, State,
+                                            PerformFetch (..), ShowP, State,
                                             StateKey, dataSourceName, fetch,
-                                            putFailure, putSuccess, show1)
+                                            putFailure, putSuccess, showp)
 
 import           Dispatch.DS.HTTP.User
 import           Dispatch.Types.Internal
@@ -69,7 +69,7 @@ instance Hashable (UserReq a) where
 
 
 deriving instance Show (UserReq a)
-instance Show1 UserReq where show1 = show
+instance ShowP UserReq where showp = show
 
 instance StateKey UserReq where
   data State UserReq = UserState { numThreads :: Int }

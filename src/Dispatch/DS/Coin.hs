@@ -18,9 +18,9 @@ import           Data.Hashable             (Hashable (..))
 import           Data.Typeable             (Typeable)
 import           Haxl.Core                 (BlockedFetch (..), DataSource,
                                             DataSourceName, Flags,
-                                            PerformFetch (..), Show1, State,
+                                            PerformFetch (..), ShowP, State,
                                             StateKey, dataSourceName, fetch,
-                                            putFailure, putSuccess, show1)
+                                            putFailure, putSuccess, showp)
 
 import           Dispatch.DS.HTTP.Coin
 import           Dispatch.Types.Coin
@@ -55,7 +55,7 @@ instance Hashable (CoinReq a) where
 
 
 deriving instance Show (CoinReq a)
-instance Show1 CoinReq where show1 = show
+instance ShowP CoinReq where showp = show
 
 instance StateKey CoinReq where
   data State CoinReq = CoinState { numThreads :: Int }

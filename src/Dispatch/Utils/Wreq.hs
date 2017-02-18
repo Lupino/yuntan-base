@@ -30,7 +30,8 @@ import           Dispatch.Types.ListResult (ListResult, emptyListResult,
                                             toListResult)
 import           Dispatch.Types.Result     (ErrResult, err)
 import           Dispatch.Utils.Signature  (signJSON, signParams)
-import           Network.HTTP.Client       (HttpException (StatusCodeException))
+import           Network.HTTP.Client       (HttpException (..),
+                                            HttpExceptionContent (..))
 import           Network.HTTP.Types        (ResponseHeaders)
 import           Network.Wreq              (Options, Response, defaults, header,
                                             responseBody)
@@ -85,12 +86,17 @@ tryResponse :: IO (Response a) -> IO (Either ErrResult (Response a))
 tryResponse req = do
   e <- try req
   case e of
-    Left (StatusCodeException _ hdrs _) -> do
-      case decode . LB.fromStrict $ headerResponseBody hdrs of
-        Just er -> return $ Left er
-        Nothing -> return . Left . err . B.unpack $ headerResponseBody hdrs
+    Left (HttpExceptionRequest _ content) -> do
+      case content of
+        (StatusCodeException _ body) -> do
+          case decode . LB.fromStrict $ body of
+            Just er -> return $ Left er
+            Nothing -> return . Left . err . B.unpack $ body
+        ResponseTimeout -> return . Left . err $ "ResponseTimeout"
+        other -> return . Left . err $ show other
 
-    Left _ -> return . Left $ err "unknow error"
+    Left (InvalidUrlException _ _) -> do
+      return . Left . err $ "InvalidUrlException"
     Right r  -> return $ Right r
 
 responseEither :: IO (Response a) -> IO (Either ErrResult a)

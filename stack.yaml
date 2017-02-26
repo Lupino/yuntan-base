@@ -15,7 +15,7 @@
 # resolver:
 #  name: custom-snapshot
 #  location: "./custom-snapshot.yaml"
-resolver: lts-7.9
+resolver: lts-8.0
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
@@ -37,13 +37,21 @@ resolver: lts-7.9
 # will not be run. This is useful for tweaking upstream packages.
 packages:
 - '.'
+- location:
+    git: https://github.com/Lupino/dispatch-common.git
+    commit: 7cad70c003cf2a87f1dec5fcc30d9f7218f0fd36
+  extra-dep: true
 # Dependency packages to be pulled from upstream that are not in the resolver
 # (e.g., acme-missiles-0.3)
 extra-deps:
-- haxl-0.4.0.1
+- wreq-0.5.0.0
 
 # Override default flag values for local packages and extra-deps
-flags: {}
+flags:
+  dispatch-common:
+    signature-utils: true
+    result-type: true
+    list-result-type: true
 
 # Extra package databases containing global packages
 extra-package-dbs: []

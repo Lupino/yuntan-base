@@ -32,36 +32,41 @@ import           Dispatch.Types.Result     (ErrResult, err)
 import           Dispatch.Utils.Signature  (signJSON, signParams)
 import           Network.HTTP.Client       (HttpException (..),
                                             HttpExceptionContent (..))
+import           Network.HTTP.Client       (Manager)
 import           Network.HTTP.Types        (ResponseHeaders)
 import           Network.Wreq              (Options, Response, defaults, header,
-                                            responseBody)
+                                            manager, responseBody)
 
+
+getMgr :: Maybe Manager -> Options
+getMgr Nothing    = defaults
+getMgr (Just mgr) = defaults & manager .~ Right mgr
 
 getOptions :: Gateway -> Options
-getOptions (Gateway { getGWAppKey = key }) =
-  defaults & header "X-REQUEST-KEY" .~ [B.pack key]
-           & header "User-Agent" .~ ["haskell dispatch-base-0.1.0.0"]
+getOptions (Gateway { getGWAppKey = key, getGWMgr = mgr }) =
+  getMgr mgr & header "X-REQUEST-KEY" .~ [B.pack key]
+             & header "User-Agent" .~ ["haskell dispatch-base-0.1.0.0"]
 
 getOptionsAndSign :: [(LT.Text, LT.Text)] -> Gateway -> IO Options
-getOptionsAndSign params (Gateway { getGWAppKey = key, getGWAppSecret = sec }) = do
+getOptionsAndSign params (Gateway { getGWAppKey = key, getGWAppSecret = sec, getGWMgr = mgr }) = do
   t <- show . toEpochTime <$> getUnixTime
   let sign = signParams (B.pack sec) (("timestamp", LT.pack t):("key", LT.pack key):params)
-      opts = defaults & header "X-REQUEST-KEY" .~ [B.pack key]
-                      & header "X-REQUEST-SIGNATURE" .~ [sign]
-                      & header "X-REQUEST-TIME" .~ [B.pack t]
-                      & header "User-Agent" .~ ["haskell dispatch-base-0.1.0.0"]
+      opts = getMgr mgr & header "X-REQUEST-KEY" .~ [B.pack key]
+                        & header "X-REQUEST-SIGNATURE" .~ [sign]
+                        & header "X-REQUEST-TIME" .~ [B.pack t]
+                        & header "User-Agent" .~ ["haskell dispatch-base-0.1.0.0"]
   return opts
 
 getOptionsAndSign' :: Value -> Gateway -> IO Options
-getOptionsAndSign' (Object v) (Gateway { getGWAppKey = key, getGWAppSecret = sec }) = do
+getOptionsAndSign' (Object v) (Gateway { getGWAppKey = key, getGWAppSecret = sec, getGWMgr = mgr }) = do
   t <- show . toEpochTime <$> getUnixTime
   let v'   = insert "timestamp" (String $ pack t) $ insert "key" (String $ pack key) v
       sign = signJSON (B.pack sec) (Object v')
-      opts = defaults & header "X-REQUEST-KEY" .~ [B.pack key]
-                      & header "X-REQUEST-SIGNATURE" .~ [sign]
-                      & header "X-REQUEST-TIME" .~ [B.pack t]
-                      & header "User-Agent" .~ ["haskell dispatch-base-0.1.0.0"]
-                      & header "Content-Type" .~ ["application/json"]
+      opts = getMgr mgr & header "X-REQUEST-KEY" .~ [B.pack key]
+                        & header "X-REQUEST-SIGNATURE" .~ [sign]
+                        & header "X-REQUEST-TIME" .~ [B.pack t]
+                        & header "User-Agent" .~ ["haskell dispatch-base-0.1.0.0"]
+                        & header "Content-Type" .~ ["application/json"]
   return opts
 
 responseValue :: IO (Response a) -> IO a

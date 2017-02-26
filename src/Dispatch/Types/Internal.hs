@@ -27,6 +27,12 @@ data Gateway = Gateway { getGWUri        :: String
                        -- numThreads of fetch async for haxl
                        }
 
+instance Show Gateway where
+  show a = concat [ "uri = ", getGWUri a
+                  , ", key = ", getGWAppKey a
+                  , ", secret = ", getGWAppSecret a
+                  ]
+
 initMgr :: Gateway -> IO Gateway
 initMgr gw = do
   mgr <- newManager defaultManagerSettings { managerConnCount = connCount

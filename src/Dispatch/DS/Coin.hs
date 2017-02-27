@@ -26,7 +26,7 @@ import           Dispatch.DS.HTTP.Coin
 import           Dispatch.Types.Coin
 import           Dispatch.Types.Internal
 import           Dispatch.Types.ListResult (From, ListResult, Size)
-import           Dispatch.Types.Result     (ErrResult, OkResult)
+import           Dispatch.Types.Result     (ErrResult)
 import           Dispatch.Types.User       (UserName)
 
 import qualified Control.Exception         (SomeException, bracket_, try)

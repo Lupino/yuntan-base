@@ -15,15 +15,13 @@ module Dispatch.Utils.Wreq
 
 import           Control.Exception         (try)
 import           Control.Lens              ((&), (.~), (^.), (^?))
-import           Data.Aeson                (FromJSON (..), Result (..), ToJSON,
-                                            Value (..), decode, fromJSON,
-                                            toJSON)
+import           Data.Aeson                (FromJSON (..), Value (..), decode)
 import qualified Data.ByteString.Char8     as B (ByteString, empty, pack,
                                                  unpack)
 import qualified Data.ByteString.Lazy      as LB (ByteString, fromStrict)
 import           Data.HashMap.Strict       (insert)
-import           Data.Text                 (Text, pack, unpack)
-import qualified Data.Text.Lazy            as LT (Text, pack, unpack)
+import           Data.Text                 (Text, pack)
+import qualified Data.Text.Lazy            as LT (Text, pack)
 import           Data.UnixTime
 import           Dispatch.Types.Internal   (Gateway (..))
 import           Dispatch.Types.ListResult (ListResult, emptyListResult,
@@ -68,6 +66,8 @@ getOptionsAndSign' (Object v) (Gateway { getGWAppKey = key, getGWAppSecret = sec
                         & header "User-Agent" .~ ["haskell dispatch-base-0.1.0.0"]
                         & header "Content-Type" .~ ["application/json"]
   return opts
+
+getOptionsAndSign' _ _ = error "Unsupport Aeson.Value signature"
 
 responseValue :: IO (Response a) -> IO a
 responseValue req = do

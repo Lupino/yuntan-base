@@ -11,7 +11,7 @@ module Dispatch.Types.Internal
   ) where
 
 import           Data.Aeson          (FromJSON (..), Value, withObject, (.!=),
-                                      (.:), (.:?), (.=))
+                                      (.:), (.:?))
 import           Data.Int            (Int64)
 import           Network.HTTP.Client (Manager, defaultManagerSettings,
                                       managerConnCount, managerResponseTimeout,

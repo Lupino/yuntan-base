@@ -9,13 +9,13 @@ module Dispatch.DS.HTTP.Coin
   , setCoinInfo
   ) where
 
-import           Data.Aeson                (Value, encode, toJSON)
+import           Data.Aeson                (Value, encode)
 import           Data.Text                 (unpack)
-import qualified Data.Text.Lazy            as LT (pack, unpack)
+import qualified Data.Text.Lazy            as LT (pack)
 import           Dispatch.Types.Coin
 import           Dispatch.Types.Internal
 import           Dispatch.Types.ListResult (From, ListResult, Size)
-import           Dispatch.Types.Result     (ErrResult, OkResult)
+import           Dispatch.Types.Result     (ErrResult)
 import           Dispatch.Types.User       (UserName)
 import           Dispatch.Utils.Wreq
 import           Network.Wreq

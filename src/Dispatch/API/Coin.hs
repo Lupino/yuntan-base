@@ -8,14 +8,13 @@ module Dispatch.API.Coin
   ) where
 
 import           Data.Aeson                (Value)
-import           Data.Int                  (Int64)
 import           Haxl.Core                 (dataFetch, uncachedRequest)
 
 import           Dispatch.DS.Coin
 import           Dispatch.Types.Coin
 import           Dispatch.Types.Internal
 import           Dispatch.Types.ListResult (From, ListResult, Size)
-import           Dispatch.Types.Result     (ErrResult, OkResult)
+import           Dispatch.Types.Result     (ErrResult)
 import           Dispatch.Types.User       (UserName)
 
 import           Haxl.Core                 (GenHaxl)

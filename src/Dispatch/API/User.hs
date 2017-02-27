@@ -15,7 +15,6 @@ module Dispatch.API.User
   , deleteBind
   ) where
 
-import           Data.Int                  (Int64)
 import           Haxl.Core                 (dataFetch, uncachedRequest)
 
 import           Dispatch.DS.User

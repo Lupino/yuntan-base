@@ -22,7 +22,7 @@ import qualified Data.ByteString.Char8     as B (unpack)
 import qualified Data.ByteString.Lazy      as LB (toStrict)
 import           Data.Text                 (unpack)
 import           Data.Text.Encoding        (encodeUtf8)
-import qualified Data.Text.Lazy            as LT (fromStrict, pack, unpack)
+import qualified Data.Text.Lazy            as LT (fromStrict, pack)
 import           Dispatch.Types.Internal
 import           Dispatch.Types.ListResult (From, ListResult, Size)
 import           Dispatch.Types.Result     (ErrResult, OkResult)

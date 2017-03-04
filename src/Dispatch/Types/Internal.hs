@@ -53,8 +53,7 @@ instance FromJSON Gateway where
     getGWNumThreads <- o .:  "numThreads" .!= 1
     getGWTimeout    <- o .:? "timeout"    .!= 30
     getGWConnCount  <- o .:? "conn-count" .!= 10
-    let getGWMgr        = Nothing
-    return Gateway{..}
+    return Gateway{ getGWMgr = Nothing, ..}
 
 class AppEnv a where
   gateway :: a -> String -> Gateway

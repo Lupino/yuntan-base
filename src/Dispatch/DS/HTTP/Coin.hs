@@ -17,12 +17,11 @@ import           Dispatch.Types.Coin
 import           Dispatch.Types.Internal
 import           Dispatch.Types.ListResult (From, ListResult, Size)
 import           Dispatch.Types.Result     (ErrResult)
-import           Dispatch.Types.User       (UserName)
 import           Dispatch.Utils.Wreq
 import           Network.Wreq
 
 -- post "/api/coins/:name/"
-saveCoin :: UserName -> Coin -> Gateway -> IO (Either ErrResult ScoreResult)
+saveCoin :: Name -> Coin -> Gateway -> IO (Either ErrResult ScoreResult)
 saveCoin n c gw = do
   opts <- getOptionsAndSign [ ("score", LT.pack $ show score)
                             , ("type", LT.pack $ show tp)
@@ -45,7 +44,7 @@ saveCoin n c gw = do
         ct = coinCreatedAt c
 
 -- get "/api/coins/:name/score/"
-getCoinScore :: UserName -> Gateway -> IO (Either ErrResult ScoreResult)
+getCoinScore :: Name -> Gateway -> IO (Either ErrResult ScoreResult)
 getCoinScore n gw = do
   opts <- getOptionsAndSign [ ("sign_path", LT.pack path) ] gw
   responseEither $ asJSON =<< getWith opts uri
@@ -55,7 +54,7 @@ getCoinScore n gw = do
 
 
 -- get "/api/coins/:name/"
-getCoinList :: UserName -> From -> Size -> Gateway -> IO (ListResult Coin)
+getCoinList :: Name -> From -> Size -> Gateway -> IO (ListResult Coin)
 getCoinList n f s gw = do
   opts <- getOptionsAndSign [ ("from", LT.pack $ show f)
                             , ("size", LT.pack $ show s)
@@ -67,7 +66,7 @@ getCoinList n f s gw = do
         uri = concat [ getGWUri gw, path, "?from=", show f, "&size=", show s]
 
 -- get "/api/coins/:name/info/"
-getCoinInfo :: UserName -> Gateway -> IO (Either ErrResult CoinInfo)
+getCoinInfo :: Name -> Gateway -> IO (Either ErrResult CoinInfo)
 getCoinInfo n gw = do
   opts <- getOptionsAndSign [ ("sign_path", LT.pack path) ] gw
   responseEither $ asJSON =<< getWith opts uri
@@ -76,7 +75,7 @@ getCoinInfo n gw = do
         uri = getGWUri gw ++ path
 
 -- put "/api/coins/:name/info/"
-setCoinInfo :: UserName -> Value -> Gateway -> IO (Either ErrResult ())
+setCoinInfo :: Name -> Value -> Gateway -> IO (Either ErrResult ())
 setCoinInfo n v gw = do
   opts <- getOptionsAndSign' (params v) gw
   responseEither' $ putWith opts uri (encode v)

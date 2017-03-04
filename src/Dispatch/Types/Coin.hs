@@ -8,6 +8,7 @@ module Dispatch.Types.Coin
   , CoinType (..)
   , zeroCoin
   , Score
+  , Name
   , ScoreResult (..)
   , CoinInfo (..)
   , coinInfo
@@ -22,7 +23,8 @@ import           Data.Text               (Text)
 import           Dispatch.Types.Internal (CreatedAt)
 import           GHC.Generics            (Generic)
 
-type Score       = Int64
+type Score = Int64
+type Name  = Text
 
 data CoinType = Incr | Decr deriving (Show, Read, Eq)
 

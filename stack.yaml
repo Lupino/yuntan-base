@@ -48,6 +48,9 @@ extra-deps:
 
 # Override default flag values for local packages and extra-deps
 flags:
+  dispatch-base:
+    coin: true
+    user: true
   dispatch-common:
     signature-utils: true
     result-type: true

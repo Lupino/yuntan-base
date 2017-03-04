@@ -13,6 +13,7 @@ module Dispatch.API.User
   , createBind
   , getBind
   , deleteBind
+  , initUserState
   ) where
 
 import           Haxl.Core                 (dataFetch, uncachedRequest)

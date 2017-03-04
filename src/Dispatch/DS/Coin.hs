@@ -27,7 +27,6 @@ import           Dispatch.Types.Coin
 import           Dispatch.Types.Internal
 import           Dispatch.Types.ListResult (From, ListResult, Size)
 import           Dispatch.Types.Result     (ErrResult)
-import           Dispatch.Types.User       (UserName)
 
 import qualified Control.Exception         (SomeException, bracket_, try)
 
@@ -37,11 +36,11 @@ import           Control.Concurrent.QSem
 -- Data source implementation.
 
 data CoinReq a where
-  SaveCoin         :: UserName -> Coin -> CoinReq (Either ErrResult ScoreResult)
-  GetCoinScore     :: UserName -> CoinReq (Either ErrResult ScoreResult)
-  GetCoinList      :: UserName -> From -> Size -> CoinReq (ListResult Coin)
-  GetCoinInfo      :: UserName -> CoinReq (Either ErrResult CoinInfo)
-  SetCoinInfo      :: UserName -> Value -> CoinReq (Either ErrResult ())
+  SaveCoin         :: Name -> Coin -> CoinReq (Either ErrResult ScoreResult)
+  GetCoinScore     :: Name -> CoinReq (Either ErrResult ScoreResult)
+  GetCoinList      :: Name -> From -> Size -> CoinReq (ListResult Coin)
+  GetCoinInfo      :: Name -> CoinReq (Either ErrResult CoinInfo)
+  SetCoinInfo      :: Name -> Value -> CoinReq (Either ErrResult ())
 
   deriving (Typeable)
 

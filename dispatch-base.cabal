@@ -13,24 +13,40 @@ build-type:          Simple
 -- extra-source-files:
 cabal-version:       >=1.10
 
+flag user
+    description: Enable user datasource
+    default: False
+    manual: True
+
+flag coin
+    description: Enable coin datasource
+    default: False
+    manual: True
+
+
 library
   hs-source-dirs:      src
+  if flag(user)
+    exposed-modules: Dispatch.Types.User
+                   , Dispatch.DS.HTTP.User
+                   , Dispatch.DS.User
+                   , Dispatch.API.User
+    build-depends: hashable
+                 , haxl
+                 , async
+  if flag(coin)
+    exposed-modules: Dispatch.Types.Coin
+                   , Dispatch.DS.HTTP.Coin
+                   , Dispatch.DS.Coin
+                   , Dispatch.API.Coin
+    build-depends: hashable
+                 , haxl
+                 , async
   exposed-modules:     Dispatch.Base
                      , Dispatch.Types.Internal
-                     , Dispatch.Types.User
-                     , Dispatch.Types.Coin
-                     , Dispatch.DS.User
-                     , Dispatch.DS.Coin
-                     , Dispatch.DS.HTTP.User
-                     , Dispatch.DS.HTTP.Coin
-                     , Dispatch.API.Coin
-                     , Dispatch.API.User
                      , Dispatch.Utils.Wreq
   build-depends:       base >= 4.7 && < 5
                      , text
-                     , hashable
-                     , haxl
-                     , async
                      , bytestring
                      , aeson
                      , http-types

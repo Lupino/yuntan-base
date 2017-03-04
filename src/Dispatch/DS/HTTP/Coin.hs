@@ -85,5 +85,5 @@ setCoinInfo n v gw = do
         uri = getGWUri gw ++ path
 
         params :: Value -> Value
-        params (Object v') = Object $ insert "key" (String $ pack path) v'
+        params (Object v') = Object $ insert "sign_path" (String $ pack path) v'
         params _           = error "Unsupport coin info"

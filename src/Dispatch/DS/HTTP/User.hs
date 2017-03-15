@@ -46,7 +46,7 @@ createUser n p gw = do
 --   get    "/api/users/:uidOrName/"
 getUser :: UserName -> Gateway -> IO (Either ErrResult User)
 getUser n gw = do
-  opts <- getOptionsAndSign [] gw
+  opts <- getOptionsAndSign [ ("sign_path", LT.pack $ path) ] gw
   responseEither $ asJSON =<< getWith opts uri
 
   where path = concat [ "/api/users/", unpack n, "/" ]

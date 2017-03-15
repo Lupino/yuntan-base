@@ -9,6 +9,7 @@ module Dispatch.Utils.Wreq
   , responseMaybe
   , responseEither
   , responseEither'
+  , responseOkResult
   , responseListResult
   , tryResponse
   ) where
@@ -26,7 +27,8 @@ import           Data.UnixTime
 import           Dispatch.Types.Internal   (Gateway (..))
 import           Dispatch.Types.ListResult (ListResult, emptyListResult,
                                             toListResult)
-import           Dispatch.Types.Result     (ErrResult, err)
+import           Dispatch.Types.Result     (ErrResult, OkResult, err,
+                                            toOkResult)
 import           Dispatch.Utils.Signature  (signJSON, signParams)
 import           Network.HTTP.Client       (HttpException (..),
                                             HttpExceptionContent (..))
@@ -117,6 +119,15 @@ responseEither' req = do
   case rsp of
     Left e  -> return $ Left e
     Right _ -> return $ Right ()
+
+responseOkResult :: FromJSON a => Text -> IO (Response Value) -> IO (Either ErrResult (OkResult a))
+responseOkResult okey req = do
+  rsp <- tryResponse req
+  case rsp of
+    Left e  -> return $ Left e
+    Right r -> case toOkResult okey (r ^. responseBody) of
+                 Just v  -> return $ Right v
+                 Nothing -> return . Left $ err "Invalid Result"
 
 responseListResult :: FromJSON a => Text -> IO (Response Value) -> IO (ListResult a)
 responseListResult okey req = do

@@ -9,7 +9,6 @@ module Dispatch.Types.Coin
   , zeroCoin
   , Score
   , Name
-  , ScoreResult (..)
   , CoinInfo (..)
   , coinInfo
   ) where
@@ -66,17 +65,6 @@ zeroCoin = Coin { coinType = Incr
                 , coinDesc = ""
                 , coinCreatedAt = 0
                 }
-
-data ScoreResult = ScoreResult { getScore :: Score }
-  deriving (Show)
-
-instance FromJSON ScoreResult where
-  parseJSON = withObject "ScoreResult" $ \o -> do
-    getScore <- o .: "score"
-    return ScoreResult{..}
-
-instance ToJSON ScoreResult where
-  toJSON ScoreResult{..} = object [ "score" .= getScore ]
 
 data CoinInfo = CoinInfo { infoName  :: String
                          , infoScore :: Score

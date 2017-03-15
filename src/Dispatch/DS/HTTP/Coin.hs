@@ -16,12 +16,12 @@ import qualified Data.Text.Lazy            as LT (pack)
 import           Dispatch.Types.Coin
 import           Dispatch.Types.Internal
 import           Dispatch.Types.ListResult (From, ListResult, Size)
-import           Dispatch.Types.Result     (ErrResult)
+import           Dispatch.Types.Result     (ErrResult, OkResult)
 import           Dispatch.Utils.Wreq
 import           Network.Wreq
 
 -- post "/api/coins/:name/"
-saveCoin :: Name -> Coin -> Gateway -> IO (Either ErrResult ScoreResult)
+saveCoin :: Name -> Coin -> Gateway -> IO (Either ErrResult (OkResult Score))
 saveCoin n c gw = do
   opts <- getOptionsAndSign [ ("score", LT.pack $ show score)
                             , ("type", LT.pack $ show tp)
@@ -29,7 +29,7 @@ saveCoin n c gw = do
                             , ("created_at", LT.pack $ show ct)
                             , ("sign_path", LT.pack path)
                             ] gw
-  responseEither $ asJSON =<< postWith opts uri [ "score" := score
+  responseOkResult "score" $ asJSON =<< postWith opts uri [ "score" := score
                                                 , "type" := show tp
                                                 , "desc" := desc
                                                 , "created_at" := ct
@@ -44,10 +44,10 @@ saveCoin n c gw = do
         ct = coinCreatedAt c
 
 -- get "/api/coins/:name/score/"
-getCoinScore :: Name -> Gateway -> IO (Either ErrResult ScoreResult)
+getCoinScore :: Name -> Gateway -> IO (Either ErrResult (OkResult Score))
 getCoinScore n gw = do
   opts <- getOptionsAndSign [ ("sign_path", LT.pack path) ] gw
-  responseEither $ asJSON =<< getWith opts uri
+  responseOkResult "score" $ asJSON =<< getWith opts uri
 
   where path = "/api/coins/" ++ unpack n ++ "/score/"
         uri = getGWUri gw ++ path

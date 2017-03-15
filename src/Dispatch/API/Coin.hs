@@ -15,12 +15,12 @@ import           Dispatch.DS.Coin
 import           Dispatch.Types.Coin
 import           Dispatch.Types.Internal
 import           Dispatch.Types.ListResult (From, ListResult, Size)
-import           Dispatch.Types.Result     (ErrResult)
+import           Dispatch.Types.Result     (ErrResult, OkResult)
 
 import           Haxl.Core                 (GenHaxl)
 
-saveCoin     :: AppEnv u => Name -> Coin -> GenHaxl u (Either ErrResult ScoreResult)
-getCoinScore :: AppEnv u => Name -> GenHaxl u (Either ErrResult ScoreResult)
+saveCoin     :: AppEnv u => Name -> Coin -> GenHaxl u (Either ErrResult (OkResult Score))
+getCoinScore :: AppEnv u => Name -> GenHaxl u (Either ErrResult (OkResult Score))
 getCoinList  :: AppEnv u => Name -> From -> Size -> GenHaxl u (ListResult Coin)
 getCoinInfo  :: AppEnv u => Name -> GenHaxl u (Either ErrResult CoinInfo)
 setCoinInfo  :: AppEnv u => Name -> Value -> GenHaxl u (Either ErrResult ())

@@ -64,7 +64,7 @@ getUsers f s gw = do
   where uri = concat [ getGWUri gw, "/api/users/?from=", show f, "&size=", show s]
 
 --   post   "/api/users/:uidOrName/verify"
-verifyPasswd :: UserName -> Password -> Gateway -> IO (Either ErrResult OkResult)
+verifyPasswd :: UserName -> Password -> Gateway -> IO (Either ErrResult (OkResult String))
 verifyPasswd n p gw = do
   opts <- getOptionsAndSign [ ("passwd", LT.fromStrict p)
                             , ("sign_path", LT.pack path)
@@ -75,7 +75,7 @@ verifyPasswd n p gw = do
         uri = getGWUri gw ++ path
 
 --   delete "/api/users/:uidOrName/"
-removeUser :: UserName -> Gateway -> IO (Either ErrResult OkResult)
+removeUser :: UserName -> Gateway -> IO (Either ErrResult (OkResult String))
 removeUser n gw = do
   opts <- getOptionsAndSign [ ("sign_path", LT.pack path) ] gw
   responseEither $ asJSON =<< deleteWith opts uri
@@ -84,7 +84,7 @@ removeUser n gw = do
         uri = getGWUri gw ++ path
 
 --   post   "/api/users/:uidOrName/"
-updateUserName :: UserName -> UserName -> Gateway -> IO (Either ErrResult OkResult)
+updateUserName :: UserName -> UserName -> Gateway -> IO (Either ErrResult (OkResult String))
 updateUserName n n1 gw = do
   opts <- getOptionsAndSign [ ("username", LT.fromStrict n1)
                             , ("sign_path", LT.pack path)
@@ -95,7 +95,7 @@ updateUserName n n1 gw = do
         uri = getGWUri gw ++ path
 
 --   post   "/api/users/:uidOrName/passwd"
-updateUserPasswd :: UserName -> Password -> Gateway -> IO (Either ErrResult OkResult)
+updateUserPasswd :: UserName -> Password -> Gateway -> IO (Either ErrResult (OkResult String))
 updateUserPasswd n p gw = do
   opts <- getOptionsAndSign [ ("passwd", LT.fromStrict p)
                             , ("sign_path", LT.pack path)
@@ -106,7 +106,7 @@ updateUserPasswd n p gw = do
         uri = getGWUri gw ++ path
 
 --   post   "/api/users/:uidOrName/extra"
-updateUserExtra :: UserName -> Extra -> Gateway -> IO (Either ErrResult OkResult)
+updateUserExtra :: UserName -> Extra -> Gateway -> IO (Either ErrResult (OkResult String))
 updateUserExtra n ex gw = do
   opts <- getOptionsAndSign [ ("extra", LT.pack $ B.unpack $ LB.toStrict ex')
                             , ("sign_path", LT.pack path)
@@ -118,7 +118,7 @@ updateUserExtra n ex gw = do
         ex' = encode ex
 
 --   delete "/api/users/:uidOrName/extra"
-removeUserExtra :: UserName -> Extra -> Gateway -> IO (Either ErrResult OkResult)
+removeUserExtra :: UserName -> Extra -> Gateway -> IO (Either ErrResult (OkResult String))
 removeUserExtra n ex gw = do
   opts <- getOptionsAndSign [ ("extra", LT.pack $ B.unpack $ LB.toStrict ex')
                             , ("sign_path", LT.pack path)
@@ -130,7 +130,7 @@ removeUserExtra n ex gw = do
         ex' = encode ex
 
 --   post   "/api/users/:uidOrName/extra/clear"
-clearUserExtra :: UserName -> Gateway -> IO (Either ErrResult OkResult)
+clearUserExtra :: UserName -> Gateway -> IO (Either ErrResult (OkResult String))
 clearUserExtra n gw = do
   opts <- getOptionsAndSign [ ("sign_path", LT.pack path) ] gw
   responseEither $ asJSON =<< customMethodWith "POST" opts uri
@@ -166,7 +166,7 @@ getBind sn gw = do
   where uri = concat [ getGWUri gw, "/api/binds/?name=", unpack sn ]
 
 --   delete "/api/binds/:bind_id"
-deleteBind :: BindID -> Gateway -> IO (Either ErrResult OkResult)
+deleteBind :: BindID -> Gateway -> IO (Either ErrResult (OkResult String))
 deleteBind bid gw = do
   opts <- getOptionsAndSign [ ("sign_path", LT.pack path) ] gw
   responseEither $ asJSON =<< deleteWith opts uri

@@ -29,11 +29,11 @@ saveCoin n c gw = do
                             , ("created_at", LT.pack $ show ct)
                             , ("sign_path", LT.pack path)
                             ] gw
-  responseOkResult "score" $ asJSON =<< postWith opts uri [ "score" := score
-                                                , "type" := show tp
-                                                , "desc" := desc
-                                                , "created_at" := ct
-                                                ]
+  responseOkResult "score" $ postWith opts uri [ "score" := score
+                                               , "type" := show tp
+                                               , "desc" := desc
+                                               , "created_at" := ct
+                                               ]
 
   where path = "/api/coins/" ++ unpack n ++ "/"
         uri = getGWUri gw ++ path
@@ -47,7 +47,7 @@ saveCoin n c gw = do
 getCoinScore :: Name -> Gateway -> IO (Either ErrResult (OkResult Score))
 getCoinScore n gw = do
   opts <- getOptionsAndSign [ ("sign_path", LT.pack path) ] gw
-  responseOkResult "score" $ asJSON =<< getWith opts uri
+  responseOkResult "score" $ getWith opts uri
 
   where path = "/api/coins/" ++ unpack n ++ "/score/"
         uri = getGWUri gw ++ path
@@ -60,7 +60,7 @@ getCoinList n f s gw = do
                             , ("size", LT.pack $ show s)
                             , ("sign_path", LT.pack path)
                             ] gw
-  responseListResult "coins" $ asJSON =<< getWith opts uri
+  responseListResult "coins" $ getWith opts uri
 
   where path = concat [ "/api/coins/", unpack n, "/"]
         uri = concat [ getGWUri gw, path, "?from=", show f, "&size=", show s]
@@ -69,7 +69,7 @@ getCoinList n f s gw = do
 getCoinInfo :: Name -> Gateway -> IO (Either ErrResult CoinInfo)
 getCoinInfo n gw = do
   opts <- getOptionsAndSign [ ("sign_path", LT.pack path) ] gw
-  responseEither $ asJSON =<< getWith opts uri
+  responseEitherJSON $ getWith opts uri
 
   where path = concat [ "/api/coins/", unpack n, "/info/" ]
         uri = getGWUri gw ++ path

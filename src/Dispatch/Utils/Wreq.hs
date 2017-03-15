@@ -9,6 +9,7 @@ module Dispatch.Utils.Wreq
   , responseMaybe
   , responseEither
   , responseEither'
+  , responseEitherJSON
   , responseOkResult
   , responseListResult
   , tryResponse
@@ -34,8 +35,8 @@ import           Network.HTTP.Client       (HttpException (..),
                                             HttpExceptionContent (..))
 import           Network.HTTP.Client       (Manager)
 import           Network.HTTP.Types        (ResponseHeaders)
-import           Network.Wreq              (Options, Response, defaults, header,
-                                            manager, responseBody)
+import           Network.Wreq              (Options, Response, asJSON, defaults,
+                                            header, manager, responseBody)
 
 
 getMgr :: Maybe Manager -> Options
@@ -83,12 +84,6 @@ responseMaybe req = do
     Left (_ :: HttpException) -> return Nothing
     Right r                   -> return $ r ^? responseBody
 
-headerResponseBody :: ResponseHeaders -> B.ByteString
-headerResponseBody ((n, v):xs) | n == "X-Response-Body-Start" = v
-                               | otherwise = headerResponseBody xs
-
-headerResponseBody [] = B.empty
-
 tryResponse :: IO (Response a) -> IO (Either ErrResult (Response a))
 tryResponse req = do
   e <- try req
@@ -120,18 +115,21 @@ responseEither' req = do
     Left e  -> return $ Left e
     Right _ -> return $ Right ()
 
-responseOkResult :: FromJSON a => Text -> IO (Response Value) -> IO (Either ErrResult (OkResult a))
+responseEitherJSON :: FromJSON a => IO (Response LB.ByteString) -> IO (Either ErrResult a)
+responseEitherJSON req = responseEither $ asJSON =<< req
+
+responseOkResult :: FromJSON a => Text -> IO (Response LB.ByteString) -> IO (Either ErrResult (OkResult a))
 responseOkResult okey req = do
-  rsp <- tryResponse req
+  rsp <- responseEitherJSON req
   case rsp of
     Left e  -> return $ Left e
-    Right r -> case toOkResult okey (r ^. responseBody) of
+    Right r -> case toOkResult okey r of
                  Just v  -> return $ Right v
                  Nothing -> return . Left $ err "Invalid Result"
 
-responseListResult :: FromJSON a => Text -> IO (Response Value) -> IO (ListResult a)
+responseListResult :: FromJSON a => Text -> IO (Response LB.ByteString) -> IO (ListResult a)
 responseListResult okey req = do
-  e <- try req
+  e <- try $ asJSON =<< req
   case e of
     Left (_ :: HttpException) -> return emptyListResult
     Right r                   -> case toListResult okey (r ^. responseBody) of

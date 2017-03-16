@@ -77,12 +77,12 @@ getCoinInfo n gw = do
 -- put "/api/coins/:name/info/"
 setCoinInfo :: Name -> Value -> Gateway -> IO (Either ErrResult ())
 setCoinInfo n v gw = do
-  opts <- getOptionsAndSign' (params v) gw
+  opts <- getOptionsAndSign' (argv v) gw
   responseEither' $ putWith opts uri (encode v)
 
   where path = concat [ "/api/coins/", unpack n, "/info/" ]
         uri = getGWUri gw ++ path
 
-        params :: Value -> Value
-        params (Object v') = Object $ insert "sign_path" (String $ pack path) v'
-        params _           = error "Unsupport coin info"
+        argv :: Value -> Value
+        argv (Object v') = Object $ insert "sign_path" (String $ pack path) v'
+        argv _           = error "Unsupport coin info"

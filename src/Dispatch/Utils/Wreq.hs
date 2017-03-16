@@ -18,8 +18,7 @@ module Dispatch.Utils.Wreq
 import           Control.Exception         (try)
 import           Control.Lens              ((&), (.~), (^.), (^?))
 import           Data.Aeson                (FromJSON (..), Value (..), decode)
-import qualified Data.ByteString.Char8     as B (ByteString, empty, pack,
-                                                 unpack)
+import qualified Data.ByteString.Char8     as B (pack, unpack)
 import qualified Data.ByteString.Lazy      as LB (ByteString, fromStrict)
 import           Data.HashMap.Strict       (insert)
 import           Data.Text                 (Text, pack)
@@ -34,7 +33,6 @@ import           Dispatch.Utils.Signature  (signJSON, signParams)
 import           Network.HTTP.Client       (HttpException (..),
                                             HttpExceptionContent (..))
 import           Network.HTTP.Client       (Manager)
-import           Network.HTTP.Types        (ResponseHeaders)
 import           Network.Wreq              (Options, Response, asJSON, defaults,
                                             header, manager, responseBody)
 

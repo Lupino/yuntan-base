@@ -151,7 +151,7 @@ createBind n s sn ex gw = do
                                          , "extra"   := ex'
                                          ]
 
-  where path = concat [ getGWUri gw, "/api/users/", unpack n, "/binds" ]
+  where path = concat [ "/api/users/", unpack n, "/binds" ]
         uri = getGWUri gw ++ path
         ex' = encode ex
 

@@ -31,8 +31,7 @@ import           Dispatch.Types.Result     (ErrResult, OkResult, err,
                                             toOkResult)
 import           Dispatch.Utils.Signature  (signJSON, signParams)
 import           Network.HTTP.Client       (HttpException (..),
-                                            HttpExceptionContent (..))
-import           Network.HTTP.Client       (Manager)
+                                            HttpExceptionContent (..), Manager)
 import           Network.Wreq              (Options, Response, asJSON, defaults,
                                             header, manager, responseBody)
 

@@ -5,6 +5,7 @@ module Dispatch.Utils.Wreq
     getOptions
   , getOptionsAndSign
   , getOptionsAndSignJSON
+  , getOptionsAndSignRaw
   , responseValue
   , responseMaybe
   , responseEither
@@ -18,7 +19,7 @@ module Dispatch.Utils.Wreq
 import           Control.Exception         (try)
 import           Control.Lens              ((&), (.~), (^.), (^?))
 import           Data.Aeson                (FromJSON (..), Value (..), decode)
-import qualified Data.ByteString.Char8     as B (pack, unpack)
+import qualified Data.ByteString.Char8     as B (ByteString, pack, unpack)
 import qualified Data.ByteString.Lazy      as LB (ByteString, fromStrict)
 import           Data.HashMap.Strict       (insert)
 import           Data.Text                 (Text, pack)
@@ -29,7 +30,7 @@ import           Dispatch.Types.ListResult (ListResult, emptyListResult,
                                             toListResult)
 import           Dispatch.Types.Result     (ErrResult, OkResult, err,
                                             toOkResult)
-import           Dispatch.Utils.Signature  (signJSON, signParams)
+import           Dispatch.Utils.Signature  (signJSON, signParams, signRaw)
 import           Network.HTTP.Client       (HttpException (..),
                                             HttpExceptionContent (..), Manager)
 import           Network.Wreq              (Options, Response, asJSON, defaults,
@@ -72,6 +73,20 @@ getOptionsAndSignJSON (String _) _ = error "Unsupport Aeson.Value signature"
 getOptionsAndSignJSON (Number _) _ = error "Unsupport Aeson.Value signature"
 getOptionsAndSignJSON (Bool _) _ = error "Unsupport Aeson.Value signature"
 getOptionsAndSignJSON Null _ = error "Unsupport Aeson.Value signature"
+
+getOptionsAndSignRaw :: String -> B.ByteString -> Gateway -> IO Options
+getOptionsAndSignRaw path dat (Gateway { getGWAppKey = key, getGWAppSecret = sec, getGWMgr = mgr }) = do
+  t <- show . toEpochTime <$> getUnixTime
+  let sign = signRaw (B.pack sec) [ ("key", B.pack key)
+                                  , ("timestamp", B.pack t)
+                                  , ("raw", dat)
+                                  , ("sign_path", B.pack path)
+                                  ]
+      opts = getMgr mgr & header "X-REQUEST-KEY" .~ [B.pack key]
+                        & header "X-REQUEST-SIGNATURE" .~ [sign]
+                        & header "X-REQUEST-TIME" .~ [B.pack t]
+                        & header "User-Agent" .~ ["haskell dispatch-base-0.1.0.0"]
+  return opts
 
 
 responseValue :: IO (Response a) -> IO a

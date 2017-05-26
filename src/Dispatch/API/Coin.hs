@@ -9,15 +9,13 @@ module Dispatch.API.Coin
   ) where
 
 import           Data.Aeson                (Value)
-import           Haxl.Core                 (dataFetch, uncachedRequest)
+import           Haxl.Core                 (GenHaxl, dataFetch, uncachedRequest)
 
 import           Dispatch.DS.Coin
 import           Dispatch.Types.Coin
 import           Dispatch.Types.Internal
 import           Dispatch.Types.ListResult (From, ListResult, Size)
 import           Dispatch.Types.Result     (ErrResult, OkResult)
-
-import           Haxl.Core                 (GenHaxl)
 
 saveCoin     :: AppEnv u => Name -> Coin -> GenHaxl u (Either ErrResult (OkResult Score))
 getCoinScore :: AppEnv u => Name -> GenHaxl u (Either ErrResult (OkResult Score))

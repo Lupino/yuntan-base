@@ -16,15 +16,13 @@ module Dispatch.API.User
   , initUserState
   ) where
 
-import           Haxl.Core                 (dataFetch, uncachedRequest)
+import           Haxl.Core                 (GenHaxl, dataFetch, uncachedRequest)
 
 import           Dispatch.DS.User
 import           Dispatch.Types.Internal
 import           Dispatch.Types.ListResult (From, ListResult, Size)
 import           Dispatch.Types.Result     (ErrResult, OkResult)
 import           Dispatch.Types.User
-
-import           Haxl.Core                 (GenHaxl)
 
 createUser       :: AppEnv u => UserName -> Password -> GenHaxl u (Either ErrResult User)
 getUser          :: AppEnv u => UserName -> GenHaxl u (Either ErrResult User)

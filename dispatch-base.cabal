@@ -23,7 +23,6 @@ flag coin
     default: False
     manual: True
 
-
 library
   hs-source-dirs:      src
   if flag(user)

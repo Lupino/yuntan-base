@@ -77,7 +77,7 @@ getCoinInfo n gw = do
 -- put "/api/coins/:name/info/"
 setCoinInfo :: Name -> Value -> Gateway -> IO (Either ErrResult ())
 setCoinInfo n v gw = do
-  opts <- getOptionsAndSign' (argv v) gw
+  opts <- getOptionsAndSignJSON (argv v) gw
   responseEither' $ putWith opts uri (encode v)
 
   where path = concat [ "/api/coins/", unpack n, "/info/" ]

@@ -4,7 +4,7 @@ module Dispatch.Utils.Wreq
   (
     getOptions
   , getOptionsAndSign
-  , getOptionsAndSign'
+  , getOptionsAndSignJSON
   , responseValue
   , responseMaybe
   , responseEither
@@ -55,8 +55,8 @@ getOptionsAndSign params (Gateway { getGWAppKey = key, getGWAppSecret = sec, get
                         & header "User-Agent" .~ ["haskell dispatch-base-0.1.0.0"]
   return opts
 
-getOptionsAndSign' :: Value -> Gateway -> IO Options
-getOptionsAndSign' (Object v) (Gateway { getGWAppKey = key, getGWAppSecret = sec, getGWMgr = mgr }) = do
+getOptionsAndSignJSON :: Value -> Gateway -> IO Options
+getOptionsAndSignJSON (Object v) (Gateway { getGWAppKey = key, getGWAppSecret = sec, getGWMgr = mgr }) = do
   t <- show . toEpochTime <$> getUnixTime
   let v'   = insert "timestamp" (String $ pack t) $ insert "key" (String $ pack key) v
       sign = signJSON (B.pack sec) (Object v')
@@ -67,7 +67,12 @@ getOptionsAndSign' (Object v) (Gateway { getGWAppKey = key, getGWAppSecret = sec
                         & header "Content-Type" .~ ["application/json"]
   return opts
 
-getOptionsAndSign' _ _ = error "Unsupport Aeson.Value signature"
+getOptionsAndSignJSON (Array _) _ = error "Unsupport Aeson.Value signature"
+getOptionsAndSignJSON (String _) _ = error "Unsupport Aeson.Value signature"
+getOptionsAndSignJSON (Number _) _ = error "Unsupport Aeson.Value signature"
+getOptionsAndSignJSON (Bool _) _ = error "Unsupport Aeson.Value signature"
+getOptionsAndSignJSON Null _ = error "Unsupport Aeson.Value signature"
+
 
 responseValue :: IO (Response a) -> IO a
 responseValue req = do

@@ -17,18 +17,20 @@ module Dispatch.DS.HTTP.User
   , deleteBind
   ) where
 
-import           Data.Aeson                (encode)
-import qualified Data.ByteString.Char8     as B (unpack)
-import qualified Data.ByteString.Lazy      as LB (toStrict)
-import           Data.Text                 (unpack)
-import           Data.Text.Encoding        (encodeUtf8)
-import qualified Data.Text.Lazy            as LT (fromStrict, pack)
+import           Data.Aeson                 (encode)
+import qualified Data.ByteString.Lazy.Char8 as LB (ByteString, toStrict)
+import           Data.Text                  (unpack)
+import           Data.Text.Encoding         (decodeUtf8, encodeUtf8)
+import qualified Data.Text.Lazy             as LT (Text, fromStrict, pack)
 import           Dispatch.Types.Internal
-import           Dispatch.Types.ListResult (From, ListResult, Size)
-import           Dispatch.Types.Result     (ErrResult, OkResult)
+import           Dispatch.Types.ListResult  (From, ListResult, Size)
+import           Dispatch.Types.Result      (ErrResult, OkResult)
 import           Dispatch.Types.User
 import           Dispatch.Utils.Wreq
 import           Network.Wreq
+
+b2t :: LB.ByteString -> LT.Text
+b2t = LT.fromStrict . decodeUtf8 . LB.toStrict
 
 --   post   "/api/users/"
 createUser :: UserName -> Password -> Gateway -> IO (Either ErrResult User)
@@ -108,7 +110,7 @@ updateUserPasswd n p gw = do
 --   post   "/api/users/:uidOrName/extra"
 updateUserExtra :: UserName -> Extra -> Gateway -> IO (Either ErrResult (OkResult String))
 updateUserExtra n ex gw = do
-  opts <- getOptionsAndSign [ ("extra", LT.pack $ B.unpack $ LB.toStrict ex')
+  opts <- getOptionsAndSign [ ("extra", b2t ex')
                             , ("sign_path", LT.pack path)
                             ] gw
   responseEitherJSON $ postWith opts uri [ "extra" := ex' ]
@@ -120,7 +122,7 @@ updateUserExtra n ex gw = do
 --   delete "/api/users/:uidOrName/extra"
 removeUserExtra :: UserName -> Extra -> Gateway -> IO (Either ErrResult (OkResult String))
 removeUserExtra n ex gw = do
-  opts <- getOptionsAndSign [ ("extra", LT.pack $ B.unpack $ LB.toStrict ex')
+  opts <- getOptionsAndSign [ ("extra", b2t ex')
                             , ("sign_path", LT.pack path)
                             ] gw
   responseEitherJSON $ customPayloadMethodWith "DELETE" opts uri [ "extra" := ex' ]
@@ -143,7 +145,7 @@ createBind :: UserName -> Service -> ServiceName -> Extra -> Gateway -> IO (Eith
 createBind n s sn ex gw = do
   opts <- getOptionsAndSign [ ("service", LT.fromStrict s)
                             , ("name", LT.fromStrict sn)
-                            , ("extra", LT.pack $ B.unpack $ LB.toStrict ex')
+                            , ("extra", b2t ex')
                             , ("sign_path", LT.pack path)
                             ] gw
   responseEitherJSON $ postWith opts uri [ "service" := encodeUtf8 s

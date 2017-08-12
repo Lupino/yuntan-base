@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 
-module Dispatch.Types.Internal
+module Yuntan.Types.Internal
   (
     Gateway (..)
   , initMgr

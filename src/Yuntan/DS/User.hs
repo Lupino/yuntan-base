@@ -7,27 +7,27 @@
 {-# LANGUAGE StandaloneDeriving    #-}
 {-# LANGUAGE TypeFamilies          #-}
 
-module Dispatch.DS.User
+module Yuntan.DS.User
   (
     UserReq (..)
   , initUserState
   ) where
 
-import           Data.Hashable             (Hashable (..))
-import           Data.Typeable             (Typeable)
-import           Haxl.Core                 (BlockedFetch (..), DataSource,
-                                            DataSourceName, Flags,
-                                            PerformFetch (..), ShowP, State,
-                                            StateKey, dataSourceName, fetch,
-                                            putFailure, putSuccess, showp)
+import           Data.Hashable            (Hashable (..))
+import           Data.Typeable            (Typeable)
+import           Haxl.Core                (BlockedFetch (..), DataSource,
+                                           DataSourceName, Flags,
+                                           PerformFetch (..), ShowP, State,
+                                           StateKey, dataSourceName, fetch,
+                                           putFailure, putSuccess, showp)
 
-import           Dispatch.DS.HTTP.User
-import           Dispatch.Types.Internal
-import           Dispatch.Types.ListResult (From, ListResult, Size)
-import           Dispatch.Types.Result     (ErrResult, OkResult)
-import           Dispatch.Types.User
+import           Yuntan.DS.HTTP.User
+import           Yuntan.Types.Internal
+import           Yuntan.Types.ListResult  (From, ListResult, Size)
+import           Yuntan.Types.Result      (ErrResult, OkResult)
+import           Yuntan.Types.User
 
-import qualified Control.Exception         (SomeException, bracket_, try)
+import qualified Control.Exception        (SomeException, bracket_, try)
 
 import           Control.Concurrent.Async
 import           Control.Concurrent.QSem
@@ -78,16 +78,16 @@ instance DataSourceName UserReq where
   dataSourceName _ = "UserDataSource"
 
 instance AppEnv u => DataSource u UserReq where
-  fetch = dispatchFetch
+  fetch = yuntanFetch
 
-dispatchFetch
+yuntanFetch
   :: AppEnv u => State UserReq
   -> Flags
   -> u
   -> [BlockedFetch UserReq]
   -> PerformFetch
 
-dispatchFetch _state _flags _user blockedFetches = AsyncFetch $ \inner -> do
+yuntanFetch _state _flags _user blockedFetches = AsyncFetch $ \inner -> do
   sem <- newQSem $ numThreads _state
   asyncs <- mapM (fetchAsync sem _user) blockedFetches
   inner

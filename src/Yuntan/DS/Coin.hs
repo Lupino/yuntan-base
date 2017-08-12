@@ -7,28 +7,28 @@
 {-# LANGUAGE StandaloneDeriving    #-}
 {-# LANGUAGE TypeFamilies          #-}
 
-module Dispatch.DS.Coin
+module Yuntan.DS.Coin
   (
     CoinReq (..)
   , initCoinState
   ) where
 
-import           Data.Aeson                (Value)
-import           Data.Hashable             (Hashable (..))
-import           Data.Typeable             (Typeable)
-import           Haxl.Core                 (BlockedFetch (..), DataSource,
-                                            DataSourceName, Flags,
-                                            PerformFetch (..), ShowP, State,
-                                            StateKey, dataSourceName, fetch,
-                                            putFailure, putSuccess, showp)
+import           Data.Aeson               (Value)
+import           Data.Hashable            (Hashable (..))
+import           Data.Typeable            (Typeable)
+import           Haxl.Core                (BlockedFetch (..), DataSource,
+                                           DataSourceName, Flags,
+                                           PerformFetch (..), ShowP, State,
+                                           StateKey, dataSourceName, fetch,
+                                           putFailure, putSuccess, showp)
 
-import           Dispatch.DS.HTTP.Coin
-import           Dispatch.Types.Coin
-import           Dispatch.Types.Internal
-import           Dispatch.Types.ListResult (From, ListResult, Size)
-import           Dispatch.Types.Result     (ErrResult, OkResult)
+import           Yuntan.DS.HTTP.Coin
+import           Yuntan.Types.Coin
+import           Yuntan.Types.Internal
+import           Yuntan.Types.ListResult  (From, ListResult, Size)
+import           Yuntan.Types.Result      (ErrResult, OkResult)
 
-import qualified Control.Exception         (SomeException, bracket_, try)
+import qualified Control.Exception        (SomeException, bracket_, try)
 
 import           Control.Concurrent.Async
 import           Control.Concurrent.QSem

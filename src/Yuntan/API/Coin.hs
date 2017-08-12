@@ -1,4 +1,4 @@
-module Dispatch.API.Coin
+module Yuntan.API.Coin
   (
     saveCoin
   , getCoinScore
@@ -8,14 +8,14 @@ module Dispatch.API.Coin
   , initCoinState
   ) where
 
-import           Data.Aeson                (Value)
-import           Haxl.Core                 (GenHaxl, dataFetch, uncachedRequest)
+import           Data.Aeson              (Value)
+import           Haxl.Core               (GenHaxl, dataFetch, uncachedRequest)
 
-import           Dispatch.DS.Coin
-import           Dispatch.Types.Coin
-import           Dispatch.Types.Internal
-import           Dispatch.Types.ListResult (From, ListResult, Size)
-import           Dispatch.Types.Result     (ErrResult, OkResult)
+import           Yuntan.DS.Coin
+import           Yuntan.Types.Coin
+import           Yuntan.Types.Internal
+import           Yuntan.Types.ListResult (From, ListResult, Size)
+import           Yuntan.Types.Result     (ErrResult, OkResult)
 
 saveCoin     :: AppEnv u => Name -> Coin -> GenHaxl u (Either ErrResult (OkResult Score))
 getCoinScore :: AppEnv u => Name -> GenHaxl u (Either ErrResult (OkResult Score))

@@ -1,4 +1,4 @@
-module Dispatch.API.User
+module Yuntan.API.User
   (
     createUser
   , getUser
@@ -16,13 +16,13 @@ module Dispatch.API.User
   , initUserState
   ) where
 
-import           Haxl.Core                 (GenHaxl, dataFetch, uncachedRequest)
+import           Haxl.Core               (GenHaxl, dataFetch, uncachedRequest)
 
-import           Dispatch.DS.User
-import           Dispatch.Types.Internal
-import           Dispatch.Types.ListResult (From, ListResult, Size)
-import           Dispatch.Types.Result     (ErrResult, OkResult)
-import           Dispatch.Types.User
+import           Yuntan.DS.User
+import           Yuntan.Types.Internal
+import           Yuntan.Types.ListResult (From, ListResult, Size)
+import           Yuntan.Types.Result     (ErrResult, OkResult)
+import           Yuntan.Types.User
 
 createUser       :: AppEnv u => UserName -> Password -> GenHaxl u (Either ErrResult User)
 getUser          :: AppEnv u => UserName -> GenHaxl u (Either ErrResult User)

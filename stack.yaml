@@ -38,7 +38,7 @@ resolver: lts-8.11
 packages:
 - '.'
 - location:
-    git: https://github.com/Lupino/dispatch-common.git
+    git: https://github.com/Lupino/yuntan-common.git
     commit: bac90c04c2448ed6ac3e76dd27b5bbf1367cbb14
   extra-dep: true
 # Dependency packages to be pulled from upstream that are not in the resolver
@@ -46,10 +46,10 @@ packages:
 
 # Override default flag values for local packages and extra-deps
 flags:
-  dispatch-base:
+  yuntan-base:
     coin: true
     user: true
-  dispatch-common:
+  yuntan-common:
     signature-utils: true
     result-type: true
     list-result-type: true

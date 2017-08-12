@@ -1,14 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import           Dispatch.Base
-import           Dispatch.Types.ListResult
-import           Haxl.Core                 (GenHaxl, StateStore, initEnv,
-                                            runHaxl, stateEmpty, stateSet)
-import           Haxl.Core.Monad           (unsafeLiftIO)
+import           Haxl.Core               (GenHaxl, StateStore, initEnv, runHaxl,
+                                          stateEmpty, stateSet)
+import           Haxl.Core.Monad         (unsafeLiftIO)
+import           Yuntan.Base
+import           Yuntan.Types.ListResult
 
-import           Control.Monad             (void, when)
-import           Data.Aeson                (Value (..), object, (.=))
-import           Data.Text                 (pack)
+import           Control.Monad           (void, when)
+import           Data.Aeson              (Value (..), object, (.=))
+import           Data.Text               (pack)
 
 data UserEnv = UserEnv { getGateway  :: Gateway -- for user
                        , getGateway1 :: Gateway -- for coin
@@ -19,9 +19,9 @@ instance AppEnv UserEnv where
   gateway env "UserDataSource" = getGateway env
   gateway env "CoinDataSource" = getGateway1 env
 
-type DispatchM = GenHaxl UserEnv
+type YuntanM = GenHaxl UserEnv
 
-type Test = DispatchM Bool
+type Test = YuntanM Bool
 
 userEnv = UserEnv { getGateway = Gateway { getGWUri = "http://127.0.0.1:3300"
                                          , getGWAppKey = "63dfdfbbdc5bc474b096"

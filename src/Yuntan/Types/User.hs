@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 
-module Dispatch.Types.User
+module Yuntan.Types.User
   (
     User (..)
   , Bind (..)
@@ -13,11 +13,11 @@ module Dispatch.Types.User
   , ServiceName
   ) where
 
-import           Data.Aeson              (FromJSON (..), ToJSON (..), object,
-                                          withObject, (.:), (.=))
-import           Data.Int                (Int64)
-import           Data.Text               (Text)
-import           Dispatch.Types.Internal (CreatedAt, Extra)
+import           Data.Aeson            (FromJSON (..), ToJSON (..), object,
+                                        withObject, (.:), (.=))
+import           Data.Int              (Int64)
+import           Data.Text             (Text)
+import           Yuntan.Types.Internal (CreatedAt, Extra)
 
 type UserID      = Int64
 type BindID      = Int64

@@ -1,8 +1,8 @@
-name:                dispatch-base
+name:                yuntan-base
 version:             0.1.0.0
 synopsis:            Initial project template from stack
 description:         Please see README.md
-homepage:            https://github.com/Lupino/dispatch-base#readme
+homepage:            https://github.com/Lupino/yuntan-base#readme
 license:             BSD3
 license-file:        LICENSE
 author:              Li Meng Jun
@@ -26,24 +26,24 @@ flag coin
 library
   hs-source-dirs:      src
   if flag(user)
-    exposed-modules: Dispatch.Types.User
-                   , Dispatch.DS.HTTP.User
-                   , Dispatch.DS.User
-                   , Dispatch.API.User
+    exposed-modules: Yuntan.Types.User
+                   , Yuntan.DS.HTTP.User
+                   , Yuntan.DS.User
+                   , Yuntan.API.User
     build-depends: hashable
                  , haxl
                  , async
   if flag(coin)
-    exposed-modules: Dispatch.Types.Coin
-                   , Dispatch.DS.HTTP.Coin
-                   , Dispatch.DS.Coin
-                   , Dispatch.API.Coin
+    exposed-modules: Yuntan.Types.Coin
+                   , Yuntan.DS.HTTP.Coin
+                   , Yuntan.DS.Coin
+                   , Yuntan.API.Coin
     build-depends: hashable
                  , haxl
                  , async
-  exposed-modules:     Dispatch.Base
-                     , Dispatch.Types.Internal
-                     , Dispatch.Utils.Wreq
+  exposed-modules:     Yuntan.Base
+                     , Yuntan.Types.Internal
+                     , Yuntan.Utils.Wreq
   build-depends:       base >= 4.7 && < 5
                      , text
                      , bytestring
@@ -52,24 +52,24 @@ library
                      , wreq
                      , http-client
                      , lens
-                     , dispatch-common
+                     , yuntan-common
                      , unix-time
                      , unordered-containers
   default-language:    Haskell2010
 
-test-suite dispatch-test
+test-suite yuntan-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Spec.hs
   build-depends:       base
-                     , dispatch-base
+                     , yuntan-base
                      , haxl
                      , aeson
                      , text
-                     , dispatch-common
+                     , yuntan-common
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 
 source-repository head
   type:     git
-  location: https://github.com/Lupino/dispatch
+  location: https://github.com/Lupino/yuntan-base

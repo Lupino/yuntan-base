@@ -2,7 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 
-module Dispatch.Types.Coin
+module Yuntan.Types.Coin
   (
     Coin (..)
   , CoinType (..)
@@ -13,14 +13,14 @@ module Dispatch.Types.Coin
   , coinInfo
   ) where
 
-import           Data.Aeson              (FromJSON (..), ToJSON (..),
-                                          Value (..), object, withObject, (.!=),
-                                          (.:), (.:?), (.=))
-import           Data.Hashable           (Hashable (..))
-import           Data.Int                (Int64)
-import           Data.Text               (Text)
-import           Dispatch.Types.Internal (CreatedAt)
-import           GHC.Generics            (Generic)
+import           Data.Aeson            (FromJSON (..), ToJSON (..), Value (..),
+                                        object, withObject, (.!=), (.:), (.:?),
+                                        (.=))
+import           Data.Hashable         (Hashable (..))
+import           Data.Int              (Int64)
+import           Data.Text             (Text)
+import           GHC.Generics          (Generic)
+import           Yuntan.Types.Internal (CreatedAt)
 
 type Score = Int64
 type Name  = Text

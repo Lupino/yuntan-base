@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Dispatch.DS.HTTP.Coin
+module Yuntan.DS.HTTP.Coin
   (
     saveCoin
   , getCoinScore
@@ -9,16 +9,16 @@ module Dispatch.DS.HTTP.Coin
   , setCoinInfo
   ) where
 
-import           Data.Aeson                (Value (Object, String), encode)
-import           Data.HashMap.Strict       (insert)
-import           Data.Text                 (pack, unpack)
-import qualified Data.Text.Lazy            as LT (pack)
-import           Dispatch.Types.Coin
-import           Dispatch.Types.Internal
-import           Dispatch.Types.ListResult (From, ListResult, Size)
-import           Dispatch.Types.Result     (ErrResult, OkResult)
-import           Dispatch.Utils.Wreq
+import           Data.Aeson              (Value (Object, String), encode)
+import           Data.HashMap.Strict     (insert)
+import           Data.Text               (pack, unpack)
+import qualified Data.Text.Lazy          as LT (pack)
 import           Network.Wreq
+import           Yuntan.Types.Coin
+import           Yuntan.Types.Internal
+import           Yuntan.Types.ListResult (From, ListResult, Size)
+import           Yuntan.Types.Result     (ErrResult, OkResult)
+import           Yuntan.Utils.Wreq
 
 -- post "/api/coins/:name/"
 saveCoin :: Name -> Coin -> Gateway -> IO (Either ErrResult (OkResult Score))

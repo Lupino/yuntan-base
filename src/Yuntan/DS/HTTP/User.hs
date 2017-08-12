@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Dispatch.DS.HTTP.User
+module Yuntan.DS.HTTP.User
   (
     createUser
   , getUser
@@ -22,12 +22,12 @@ import qualified Data.ByteString.Lazy.Char8 as LB (ByteString, toStrict)
 import           Data.Text                  (unpack)
 import           Data.Text.Encoding         (decodeUtf8, encodeUtf8)
 import qualified Data.Text.Lazy             as LT (Text, fromStrict, pack)
-import           Dispatch.Types.Internal
-import           Dispatch.Types.ListResult  (From, ListResult, Size)
-import           Dispatch.Types.Result      (ErrResult, OkResult)
-import           Dispatch.Types.User
-import           Dispatch.Utils.Wreq
 import           Network.Wreq
+import           Yuntan.Types.Internal
+import           Yuntan.Types.ListResult    (From, ListResult, Size)
+import           Yuntan.Types.Result        (ErrResult, OkResult)
+import           Yuntan.Types.User
+import           Yuntan.Utils.Wreq
 
 b2t :: LB.ByteString -> LT.Text
 b2t = LT.fromStrict . decodeUtf8 . LB.toStrict

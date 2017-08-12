@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-module Dispatch.Utils.Wreq
+module Yuntan.Utils.Wreq
   (
     getOptions
   , getOptionsAndSign
@@ -16,25 +16,24 @@ module Dispatch.Utils.Wreq
   , tryResponse
   ) where
 
-import           Control.Exception         (try)
-import           Control.Lens              ((&), (.~), (^.), (^?))
-import           Data.Aeson                (FromJSON (..), Value (..), decode)
-import qualified Data.ByteString.Char8     as B (ByteString, pack, unpack)
-import qualified Data.ByteString.Lazy      as LB (ByteString, fromStrict)
-import           Data.HashMap.Strict       (insert)
-import           Data.Text                 (Text, pack)
-import qualified Data.Text.Lazy            as LT (Text, pack)
+import           Control.Exception       (try)
+import           Control.Lens            ((&), (.~), (^.), (^?))
+import           Data.Aeson              (FromJSON (..), Value (..), decode)
+import qualified Data.ByteString.Char8   as B (ByteString, pack, unpack)
+import qualified Data.ByteString.Lazy    as LB (ByteString, fromStrict)
+import           Data.HashMap.Strict     (insert)
+import           Data.Text               (Text, pack)
+import qualified Data.Text.Lazy          as LT (Text, pack)
 import           Data.UnixTime
-import           Dispatch.Types.Internal   (Gateway (..))
-import           Dispatch.Types.ListResult (ListResult, emptyListResult,
-                                            toListResult)
-import           Dispatch.Types.Result     (ErrResult, OkResult, err,
-                                            toOkResult)
-import           Dispatch.Utils.Signature  (signJSON, signParams, signRaw)
-import           Network.HTTP.Client       (HttpException (..),
-                                            HttpExceptionContent (..), Manager)
-import           Network.Wreq              (Options, Response, asJSON, defaults,
-                                            header, manager, responseBody)
+import           Network.HTTP.Client     (HttpException (..),
+                                          HttpExceptionContent (..), Manager)
+import           Network.Wreq            (Options, Response, asJSON, defaults,
+                                          header, manager, responseBody)
+import           Yuntan.Types.Internal   (Gateway (..))
+import           Yuntan.Types.ListResult (ListResult, emptyListResult,
+                                          toListResult)
+import           Yuntan.Types.Result     (ErrResult, OkResult, err, toOkResult)
+import           Yuntan.Utils.Signature  (signJSON, signParams, signRaw)
 
 
 getMgr :: Maybe Manager -> Options
@@ -44,7 +43,7 @@ getMgr (Just mgr) = defaults & manager .~ Right mgr
 getOptions :: Gateway -> Options
 getOptions (Gateway { getGWAppKey = key, getGWMgr = mgr }) =
   getMgr mgr & header "X-REQUEST-KEY" .~ [B.pack key]
-             & header "User-Agent" .~ ["haskell dispatch-base-0.1.0.0"]
+             & header "User-Agent" .~ ["haskell yuntan-base-0.1.0.0"]
 
 getOptionsAndSign :: [(LT.Text, LT.Text)] -> Gateway -> IO Options
 getOptionsAndSign params (Gateway { getGWAppKey = key, getGWAppSecret = sec, getGWMgr = mgr }) = do
@@ -53,7 +52,7 @@ getOptionsAndSign params (Gateway { getGWAppKey = key, getGWAppSecret = sec, get
       opts = getMgr mgr & header "X-REQUEST-KEY" .~ [B.pack key]
                         & header "X-REQUEST-SIGNATURE" .~ [sign]
                         & header "X-REQUEST-TIME" .~ [B.pack t]
-                        & header "User-Agent" .~ ["haskell dispatch-base-0.1.0.0"]
+                        & header "User-Agent" .~ ["haskell yuntan-base-0.1.0.0"]
   return opts
 
 getOptionsAndSignJSON :: Value -> Gateway -> IO Options
@@ -64,7 +63,7 @@ getOptionsAndSignJSON (Object v) (Gateway { getGWAppKey = key, getGWAppSecret = 
       opts = getMgr mgr & header "X-REQUEST-KEY" .~ [B.pack key]
                         & header "X-REQUEST-SIGNATURE" .~ [sign]
                         & header "X-REQUEST-TIME" .~ [B.pack t]
-                        & header "User-Agent" .~ ["haskell dispatch-base-0.1.0.0"]
+                        & header "User-Agent" .~ ["haskell yuntan-base-0.1.0.0"]
                         & header "Content-Type" .~ ["application/json"]
   return opts
 
@@ -85,7 +84,7 @@ getOptionsAndSignRaw path dat (Gateway { getGWAppKey = key, getGWAppSecret = sec
       opts = getMgr mgr & header "X-REQUEST-KEY" .~ [B.pack key]
                         & header "X-REQUEST-SIGNATURE" .~ [sign]
                         & header "X-REQUEST-TIME" .~ [B.pack t]
-                        & header "User-Agent" .~ ["haskell dispatch-base-0.1.0.0"]
+                        & header "User-Agent" .~ ["haskell yuntan-base-0.1.0.0"]
   return opts
 
 

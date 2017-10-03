@@ -23,6 +23,11 @@ flag coin
     default: False
     manual: True
 
+flag search
+    description: Enable search datasource
+    default: False
+    manual: True
+
 library
   hs-source-dirs:      src
   if flag(user)
@@ -38,6 +43,13 @@ library
                    , Yuntan.DS.HTTP.Coin
                    , Yuntan.DS.Coin
                    , Yuntan.API.Coin
+    build-depends: hashable
+                 , haxl
+                 , async
+  if flag(search)
+    exposed-modules: Yuntan.DS.HTTP.Search
+                   , Yuntan.DS.Search
+                   , Yuntan.API.Search
     build-depends: hashable
                  , haxl
                  , async

@@ -23,7 +23,7 @@ import           Data.Text                  (unpack)
 import           Data.Text.Encoding         (decodeUtf8, encodeUtf8)
 import qualified Data.Text.Lazy             as LT (Text, fromStrict, pack)
 import           Network.Wreq
-import           Yuntan.Types.Internal
+import           Yuntan.Base
 import           Yuntan.Types.ListResult    (From, ListResult, Size)
 import           Yuntan.Types.Result        (ErrResult, OkResult)
 import           Yuntan.Types.User

@@ -14,8 +14,8 @@ import           Data.HashMap.Strict     (insert)
 import           Data.Text               (pack, unpack)
 import qualified Data.Text.Lazy          as LT (pack)
 import           Network.Wreq
+import           Yuntan.Base
 import           Yuntan.Types.Coin
-import           Yuntan.Types.Internal
 import           Yuntan.Types.ListResult (From, ListResult, Size)
 import           Yuntan.Types.Result     (ErrResult, OkResult)
 import           Yuntan.Utils.Wreq

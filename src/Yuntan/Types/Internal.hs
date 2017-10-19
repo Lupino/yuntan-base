@@ -10,12 +10,15 @@ module Yuntan.Types.Internal
   , CreatedAt
   ) where
 
-import           Data.Aeson          (FromJSON (..), Value, withObject, (.!=),
-                                      (.:), (.:?))
-import           Data.Int            (Int64)
-import           Network.HTTP.Client (Manager, defaultManagerSettings,
-                                      managerConnCount, managerResponseTimeout,
-                                      newManager, responseTimeoutMicro)
+import           Data.Aeson              (FromJSON (..), Value, withObject,
+                                          (.!=), (.:), (.:?))
+import           Data.Int                (Int64)
+import           Data.String.Utils       (startswith)
+import           Network.HTTP.Client     (Manager, defaultManagerSettings,
+                                          managerConnCount,
+                                          managerResponseTimeout, newManager,
+                                          responseTimeoutMicro)
+import           Network.HTTP.Client.TLS (tlsManagerSettings)
 
 data Gateway = Gateway { getGWUri        :: String
                        , getGWAppKey     :: String
@@ -35,14 +38,16 @@ instance Show Gateway where
 
 initMgr :: Gateway -> IO Gateway
 initMgr gw = do
-  mgr <- newManager defaultManagerSettings { managerConnCount = connCount
-                                           , managerResponseTimeout = responseTimeoutMicro $ timeout * 1000
-                                           }
+  mgr <- newManager settings { managerConnCount = connCount
+                             , managerResponseTimeout = responseTimeoutMicro $ timeout * 1000
+                             }
 
   return gw { getGWMgr = Just mgr }
 
   where timeout = getGWTimeout gw
         connCount = getGWConnCount gw
+        settings = if startswith "https" (getGWUri gw) then tlsManagerSettings
+                                                       else defaultManagerSettings
 
 
 instance FromJSON Gateway where

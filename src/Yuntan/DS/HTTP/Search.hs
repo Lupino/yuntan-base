@@ -16,16 +16,16 @@ module Yuntan.DS.HTTP.Search
   , alias
   ) where
 
-import           Data.Aeson            (Value (Object, String), encode, object,
-                                        (.=))
-import           Data.ByteString.Lazy  (ByteString)
-import           Data.HashMap.Strict   (insert)
-import           Data.Text             (pack)
+import           Data.Aeson           (Value (Object, String), encode, object,
+                                       (.=))
+import           Data.ByteString.Lazy (ByteString)
+import           Data.HashMap.Strict  (insert)
+import           Data.Text            (pack)
 import           Network.Wreq
-import           Yuntan.Types.Internal (Gateway (getGWUri))
-import           Yuntan.Types.Result   (ErrResult)
-import           Yuntan.Utils.Wreq     (getOptionsAndSignJSON,
-                                        responseEitherJSON)
+import           Yuntan.Base          (Gateway (getGWUri),
+                                       getOptionsAndSignJSON)
+import           Yuntan.Types.Result  (ErrResult)
+import           Yuntan.Utils.Wreq    (responseEitherJSON)
 
 insertPathName :: Value -> String -> Value
 insertPathName (Object v') path = Object $ insert "pathname" (String $ pack path) v'

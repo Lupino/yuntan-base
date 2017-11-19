@@ -52,7 +52,7 @@ testGetUser = do
 testGetUsers :: Test
 testGetUsers = do
   r <- getUsers 0 10
-  return $ length (getResult r) > 0
+  return . not $ null getResult r
 
 testVerifyPasswd :: Test
 testVerifyPasswd = do
@@ -148,7 +148,7 @@ testGetCoinList :: Test
 testGetCoinList = do
   r <- getCoinList "Lupino" 0 10
   unsafeLiftIO $ print r
-  return $ length (getResult r) > 0
+  return . not $ null getResult r
 
 tests = [ testCreateUser
         , testGetUser

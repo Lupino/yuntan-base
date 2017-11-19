@@ -43,12 +43,12 @@ createUser n p gw = do
                                          , "passwd"   := encodeUtf8 p
                                          ]
 
-  where uri = concat [ getGWUri gw, "/api/users/" ]
+ where uri = getGWUri gw ++ "/api/users/"
 
 --   get    "/api/users/:uidOrName/"
 getUser :: UserName -> Gateway -> IO (Either ErrResult User)
 getUser n gw = do
-  opts <- getOptionsAndSign [ ("pathname", LT.pack $ path) ] gw
+  opts <- getOptionsAndSign [ ("pathname", LT.pack path) ] gw
   responseEitherJSON $ getWith opts uri
 
   where path = concat [ "/api/users/", unpack n, "/" ]
@@ -109,23 +109,18 @@ updateUserPasswd n p gw = do
 
 --   post   "/api/users/:uidOrName/extra"
 updateUserExtra :: UserName -> Extra -> Gateway -> IO (Either ErrResult (OkResult String))
-updateUserExtra n ex gw = do
-  opts <- getOptionsAndSign [ ("extra", b2t ex')
-                            , ("pathname", LT.pack path)
-                            ] gw
-  responseEitherJSON $ postWith opts uri [ "extra" := ex' ]
-
-  where path = concat [ "/api/users/", unpack n, "/extra" ]
-        uri = getGWUri gw ++ path
-        ex' = encode ex
+updateUserExtra = userExtra "POST"
 
 --   delete "/api/users/:uidOrName/extra"
 removeUserExtra :: UserName -> Extra -> Gateway -> IO (Either ErrResult (OkResult String))
-removeUserExtra n ex gw = do
+removeUserExtra = userExtra "DELETE"
+
+userExtra :: String -> UserName -> Extra -> Gateway -> IO (Either ErrResult (OkResult String))
+userExtra m n ex gw = do
   opts <- getOptionsAndSign [ ("extra", b2t ex')
                             , ("pathname", LT.pack path)
                             ] gw
-  responseEitherJSON $ customPayloadMethodWith "DELETE" opts uri [ "extra" := ex' ]
+  responseEitherJSON $ customPayloadMethodWith m opts uri [ "extra" := ex' ]
 
   where path = concat [ "/api/users/", unpack n, "/extra" ]
         uri = getGWUri gw ++ path
@@ -173,5 +168,5 @@ deleteBind bid gw = do
   opts <- getOptionsAndSign [ ("pathname", LT.pack path) ] gw
   responseEitherJSON $ deleteWith opts uri
 
-  where path = concat [ "/api/binds/", show bid ]
+  where path = "/api/binds/" ++ show bid
         uri = getGWUri gw ++ path

@@ -3,7 +3,6 @@
 {-# LANGUAGE GADTs                 #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings     #-}
-{-# LANGUAGE RecordWildCards       #-}
 {-# LANGUAGE StandaloneDeriving    #-}
 {-# LANGUAGE TypeFamilies          #-}
 
@@ -100,4 +99,4 @@ fetchReq (SetCoinInfo n i)    = setCoinInfo n i
 
 
 initCoinState :: Int -> State CoinReq
-initCoinState threads = CoinState threads
+initCoinState = CoinState

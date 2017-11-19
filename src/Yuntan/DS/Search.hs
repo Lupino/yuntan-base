@@ -3,7 +3,6 @@
 {-# LANGUAGE GADTs                 #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings     #-}
-{-# LANGUAGE RecordWildCards       #-}
 {-# LANGUAGE StandaloneDeriving    #-}
 {-# LANGUAGE TypeFamilies          #-}
 
@@ -117,4 +116,4 @@ fetchReq  (Debug n i)       = debug n i
 fetchReq  (Alias v)         = alias v
 
 initSearchState :: Int -> State SearchReq
-initSearchState threads = SearchState threads
+initSearchState = SearchState

@@ -3,7 +3,6 @@
 {-# LANGUAGE GADTs                 #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings     #-}
-{-# LANGUAGE RecordWildCards       #-}
 {-# LANGUAGE StandaloneDeriving    #-}
 {-# LANGUAGE TypeFamilies          #-}
 
@@ -123,4 +122,4 @@ fetchReq (DeleteBind bid)        = deleteBind bid
 
 
 initUserState :: Int -> State UserReq
-initUserState threads = UserState threads
+initUserState = UserState

@@ -4,6 +4,10 @@ import           Haxl.Core               (GenHaxl, StateStore, initEnv, runHaxl,
                                           stateEmpty, stateSet)
 import           Haxl.Core.Monad         (unsafeLiftIO)
 import           Yuntan.Base
+import           Yuntan.API.Coin
+import           Yuntan.Types.Coin
+import           Yuntan.API.User
+import           Yuntan.Types.User
 import           Yuntan.Types.ListResult
 
 import           Control.Monad           (void, when)
@@ -26,10 +30,12 @@ type Test = YuntanM Bool
 userEnv = UserEnv { getGateway = Gateway { getGWUri = "http://127.0.0.1:3300"
                                          , getGWAppKey = "63dfdfbbdc5bc474b096"
                                          , getGWAppSecret = "68bb31f42bc29187badb7e182273769ba35a747dbe7c3925d9e23022fc746f"
+                                         , getGWMgr = Nothing
                                          }
                   , getGateway1 = Gateway { getGWUri = "http://127.0.0.1:3300"
                                           , getGWAppKey = "611f6d62d7f0e0403319"
                                           , getGWAppSecret = "3341db8549272346f6aa3b4fd38ed413c1629df18a3e90bfe8851d87dd4747"
+                                         , getGWMgr = Nothing
                                           }
                   }
 
@@ -52,7 +58,7 @@ testGetUser = do
 testGetUsers :: Test
 testGetUsers = do
   r <- getUsers 0 10
-  return . not $ null getResult r
+  return . not . null $ getResult r
 
 testVerifyPasswd :: Test
 testVerifyPasswd = do
@@ -148,7 +154,7 @@ testGetCoinList :: Test
 testGetCoinList = do
   r <- getCoinList "Lupino" 0 10
   unsafeLiftIO $ print r
-  return . not $ null getResult r
+  return . not . null $ getResult r
 
 tests = [ testCreateUser
         , testGetUser

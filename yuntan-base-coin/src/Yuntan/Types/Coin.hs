@@ -9,21 +9,21 @@ module Yuntan.Types.Coin
   , zeroCoin
   , Score
   , Name
+  , CreatedAt
   , CoinInfo (..)
   , coinInfo
   ) where
 
-import           Data.Aeson            (FromJSON (..), ToJSON (..), Value (..),
-                                        object, withObject, (.!=), (.:), (.:?),
-                                        (.=))
-import           Data.Hashable         (Hashable (..))
-import           Data.Int              (Int64)
-import           Data.Text             (Text)
-import           GHC.Generics          (Generic)
-import           Yuntan.Types.Internal (CreatedAt)
+import           Data.Aeson    (FromJSON (..), ToJSON (..), Value (..), object,
+                                withObject, (.!=), (.:), (.:?), (.=))
+import           Data.Hashable (Hashable (..))
+import           Data.Int      (Int64)
+import           Data.Text     (Text)
+import           GHC.Generics  (Generic)
 
 type Score = Int64
 type Name  = Text
+type CreatedAt = Int64
 
 data CoinType = Incr | Decr deriving (Show, Read, Eq)
 

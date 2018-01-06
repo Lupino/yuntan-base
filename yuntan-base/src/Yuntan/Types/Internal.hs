@@ -6,8 +6,6 @@ module Yuntan.Types.Internal
     Gateway (..)
   , initMgr
   , AppEnv (..)
-  , Extra
-  , CreatedAt
   ) where
 
 import           Data.Aeson              (FromJSON (..), Value, withObject,
@@ -56,10 +54,8 @@ instance FromJSON Gateway where
     numThreads <- o .:  "numThreads" .!= 1
     timeout    <- o .:? "timeout"    .!= 30
     connCount  <- o .:? "conn-count" .!= 10
-    return Gateway{ mgr = Nothing, ..}
+    return Gateway{ mgr = Nothing, makeSecret = defaultMakeSecret, ..}
 
 class AppEnv a where
   gateway :: a -> String -> Gateway
 
-type Extra       = Value
-type CreatedAt   = Int64

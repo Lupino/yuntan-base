@@ -11,13 +11,14 @@ module Yuntan.Types.User
   , Password
   , Service
   , ServiceName
+  , Extra
+  , CreatedAt
   ) where
 
-import           Data.Aeson            (FromJSON (..), ToJSON (..), object,
-                                        withObject, (.:), (.=))
-import           Data.Int              (Int64)
-import           Data.Text             (Text)
-import           Yuntan.Types.Internal (CreatedAt, Extra)
+import           Data.Aeson (FromJSON (..), ToJSON (..), Value, object,
+                             withObject, (.:), (.=))
+import           Data.Int   (Int64)
+import           Data.Text  (Text)
 
 type UserID      = Int64
 type BindID      = Int64
@@ -25,6 +26,8 @@ type UserName    = Text
 type Password    = Text
 type Service     = Text
 type ServiceName = Text
+type CreatedAt   = Int64
+type Extra       = Value
 
 data User = User { getUserID        :: UserID
                  , getUserName      :: UserName

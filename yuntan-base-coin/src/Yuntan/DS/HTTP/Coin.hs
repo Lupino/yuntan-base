@@ -36,7 +36,7 @@ saveCoin n c gw = do
                                                ]
 
   where path = "/api/coins/" ++ unpack n ++ "/"
-        uri = getGWUri gw ++ path
+        uri = host gw ++ path
 
         score = coinScore c
         tp = coinType c
@@ -50,7 +50,7 @@ getCoinScore n gw = do
   responseOkResult "score" $ getWith opts uri
 
   where path = "/api/coins/" ++ unpack n ++ "/score/"
-        uri = getGWUri gw ++ path
+        uri = host gw ++ path
 
 
 -- get "/api/coins/:name/"
@@ -63,7 +63,7 @@ getCoinList n f s gw = do
   responseListResult "coins" $ getWith opts uri
 
   where path = concat [ "/api/coins/", unpack n, "/"]
-        uri = concat [ getGWUri gw, path, "?from=", show f, "&size=", show s]
+        uri = concat [ host gw, path, "?from=", show f, "&size=", show s]
 
 -- get "/api/coins/:name/info/"
 getCoinInfo :: Name -> Gateway -> IO (Either ErrResult CoinInfo)
@@ -72,7 +72,7 @@ getCoinInfo n gw = do
   responseEitherJSON $ getWith opts uri
 
   where path = concat [ "/api/coins/", unpack n, "/info/" ]
-        uri = getGWUri gw ++ path
+        uri = host gw ++ path
 
 -- put "/api/coins/:name/info/"
 setCoinInfo :: Name -> Value -> Gateway -> IO (Either ErrResult ())
@@ -81,7 +81,7 @@ setCoinInfo n v gw = do
   responseEither' $ putWith opts uri (encode v)
 
   where path = concat [ "/api/coins/", unpack n, "/info/" ]
-        uri = getGWUri gw ++ path
+        uri = host gw ++ path
 
         argv :: Value -> Value
         argv (Object v') = Object $ insert "pathname" (String $ pack path) v'

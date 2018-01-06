@@ -22,7 +22,7 @@ import           Haxl.Core                (BlockedFetch (..), DataSource,
                                            putFailure, putSuccess, showp)
 
 import           Yuntan.DS.HTTP.Search
-import           Yuntan.Types.Internal
+import           Yuntan.Types.Internal    hiding (numThreads)
 import           Yuntan.Types.Result      (ErrResult)
 
 import qualified Control.Exception        (SomeException, bracket_, try)

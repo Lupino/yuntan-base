@@ -43,7 +43,7 @@ createUser n p gw = do
                                          , "passwd"   := encodeUtf8 p
                                          ]
 
- where uri = getGWUri gw ++ "/api/users/"
+ where uri = host gw ++ "/api/users/"
 
 --   get    "/api/users/:uidOrName/"
 getUser :: UserName -> Gateway -> IO (Either ErrResult User)
@@ -52,7 +52,7 @@ getUser n gw = do
   responseEitherJSON $ getWith opts uri
 
   where path = concat [ "/api/users/", unpack n, "/" ]
-        uri = getGWUri gw ++ path
+        uri = host gw ++ path
 
 --   get    "/api/users/"
 getUsers :: From -> Size -> Gateway -> IO (ListResult User)
@@ -63,7 +63,7 @@ getUsers f s gw = do
                             ] gw
   responseListResult "users" $ getWith opts uri
 
-  where uri = concat [ getGWUri gw, "/api/users/?from=", show f, "&size=", show s]
+  where uri = concat [ host gw, "/api/users/?from=", show f, "&size=", show s]
 
 --   post   "/api/users/:uidOrName/verify"
 verifyPasswd :: UserName -> Password -> Gateway -> IO (Either ErrResult (OkResult String))
@@ -74,7 +74,7 @@ verifyPasswd n p gw = do
   responseEitherJSON $ postWith opts uri [ "passwd" := encodeUtf8 p ]
 
   where path = concat [ "/api/users/", unpack n, "/verify" ]
-        uri = getGWUri gw ++ path
+        uri = host gw ++ path
 
 --   delete "/api/users/:uidOrName/"
 removeUser :: UserName -> Gateway -> IO (Either ErrResult (OkResult String))
@@ -83,7 +83,7 @@ removeUser n gw = do
   responseEitherJSON $ deleteWith opts uri
 
   where path = concat [ "/api/users/", unpack n, "/" ]
-        uri = getGWUri gw ++ path
+        uri = host gw ++ path
 
 --   post   "/api/users/:uidOrName/"
 updateUserName :: UserName -> UserName -> Gateway -> IO (Either ErrResult (OkResult String))
@@ -94,7 +94,7 @@ updateUserName n n1 gw = do
   responseEitherJSON $ postWith opts uri [ "username" := encodeUtf8 n1 ]
 
   where path = concat [ "/api/users/", unpack n, "/" ]
-        uri = getGWUri gw ++ path
+        uri = host gw ++ path
 
 --   post   "/api/users/:uidOrName/passwd"
 updateUserPasswd :: UserName -> Password -> Gateway -> IO (Either ErrResult (OkResult String))
@@ -105,7 +105,7 @@ updateUserPasswd n p gw = do
   responseEitherJSON $ postWith opts uri [ "passwd" := encodeUtf8 p ]
 
   where path = concat [ "/api/users/", unpack n, "/passwd" ]
-        uri = getGWUri gw ++ path
+        uri = host gw ++ path
 
 --   post   "/api/users/:uidOrName/extra"
 updateUserExtra :: UserName -> Extra -> Gateway -> IO (Either ErrResult (OkResult String))
@@ -123,7 +123,7 @@ userExtra m n ex gw = do
   responseEitherJSON $ customPayloadMethodWith m opts uri [ "extra" := ex' ]
 
   where path = concat [ "/api/users/", unpack n, "/extra" ]
-        uri = getGWUri gw ++ path
+        uri = host gw ++ path
         ex' = encode ex
 
 --   post   "/api/users/:uidOrName/extra/clear"
@@ -133,7 +133,7 @@ clearUserExtra n gw = do
   responseEitherJSON $ customMethodWith "POST" opts uri
 
   where path = concat [ "/api/users/", unpack n, "/extra/clear" ]
-        uri = getGWUri gw ++ path
+        uri = host gw ++ path
 
 --   post   "/api/users/:uidOrName/binds"
 createBind :: UserName -> Service -> ServiceName -> Extra -> Gateway -> IO (Either ErrResult Bind)
@@ -149,7 +149,7 @@ createBind n s sn ex gw = do
                                          ]
 
   where path = concat [ "/api/users/", unpack n, "/binds" ]
-        uri = getGWUri gw ++ path
+        uri = host gw ++ path
         ex' = encode ex
 
 --   get    "/api/binds/"
@@ -160,7 +160,7 @@ getBind sn gw = do
                             ] gw
   responseEitherJSON $ getWith opts uri
 
-  where uri = concat [ getGWUri gw, "/api/binds/?name=", unpack sn ]
+  where uri = concat [ host gw, "/api/binds/?name=", unpack sn ]
 
 --   delete "/api/binds/:bind_id"
 deleteBind :: BindID -> Gateway -> IO (Either ErrResult (OkResult String))
@@ -169,4 +169,4 @@ deleteBind bid gw = do
   responseEitherJSON $ deleteWith opts uri
 
   where path = "/api/binds/" ++ show bid
-        uri = getGWUri gw ++ path
+        uri = host gw ++ path

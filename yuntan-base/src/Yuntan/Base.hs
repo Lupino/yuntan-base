@@ -29,12 +29,12 @@ getMgr Nothing    = defaults
 getMgr (Just mgr) = defaults & manager .~ Right mgr
 
 getOptions :: Gateway -> Options
-getOptions Gateway{getGWAppKey = key, getGWMgr = mgr} =
+getOptions Gateway{appKey = key, mgr = mgr} =
   getMgr mgr & header "X-REQUEST-KEY" .~ [B.pack key]
              & header "User-Agent" .~ ["haskell yuntan-base-0.1.0.0"]
 
 getOptionsAndSign :: [(LT.Text, LT.Text)] -> Gateway -> IO Options
-getOptionsAndSign params Gateway{getGWAppKey = key, getGWAppSecret = sec, getGWMgr = mgr} = do
+getOptionsAndSign params Gateway{appKey = key, appSecret = sec, mgr = mgr} = do
   t <- show . toEpochTime <$> getUnixTime
   let sign = signParams (B.pack sec) (("timestamp", LT.pack t):("key", LT.pack key):params)
       opts = getMgr mgr & header "X-REQUEST-KEY" .~ [B.pack key]
@@ -44,7 +44,7 @@ getOptionsAndSign params Gateway{getGWAppKey = key, getGWAppSecret = sec, getGWM
   return opts
 
 getOptionsAndSignJSON :: Value -> Gateway -> IO Options
-getOptionsAndSignJSON (Object v) Gateway{getGWAppKey = key, getGWAppSecret = sec, getGWMgr = mgr} = do
+getOptionsAndSignJSON (Object v) Gateway{appKey = key, appSecret = sec, mgr = mgr} = do
   t <- show . toEpochTime <$> getUnixTime
   let v'   = insert "timestamp" (String $ pack t) $ insert "key" (String $ pack key) v
       sign = signJSON (B.pack sec) (Object v')
@@ -62,7 +62,7 @@ getOptionsAndSignJSON (Bool _) _ = error "Unsupport Aeson.Value signature"
 getOptionsAndSignJSON Null _ = error "Unsupport Aeson.Value signature"
 
 getOptionsAndSignRaw :: String -> B.ByteString -> Gateway -> IO Options
-getOptionsAndSignRaw path dat Gateway{getGWAppKey = key, getGWAppSecret = sec, getGWMgr = mgr} = do
+getOptionsAndSignRaw path dat Gateway{appKey = key, appSecret = sec, mgr = mgr} = do
   t <- show . toEpochTime <$> getUnixTime
   let sign = signRaw (B.pack sec) [ ("key", B.pack key)
                                   , ("timestamp", B.pack t)

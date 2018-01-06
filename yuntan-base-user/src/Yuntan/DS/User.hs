@@ -21,7 +21,7 @@ import           Haxl.Core                (BlockedFetch (..), DataSource,
                                            putFailure, putSuccess, showp)
 
 import           Yuntan.DS.HTTP.User
-import           Yuntan.Types.Internal
+import           Yuntan.Types.Internal    hiding (numThreads)
 import           Yuntan.Types.ListResult  (From, ListResult, Size)
 import           Yuntan.Types.Result      (ErrResult, OkResult)
 import           Yuntan.Types.User

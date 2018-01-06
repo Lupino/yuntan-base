@@ -23,7 +23,7 @@ import           Haxl.Core                (BlockedFetch (..), DataSource,
 
 import           Yuntan.DS.HTTP.Coin
 import           Yuntan.Types.Coin
-import           Yuntan.Types.Internal
+import           Yuntan.Types.Internal    hiding (numThreads)
 import           Yuntan.Types.ListResult  (From, ListResult, Size)
 import           Yuntan.Types.Result      (ErrResult, OkResult)
 

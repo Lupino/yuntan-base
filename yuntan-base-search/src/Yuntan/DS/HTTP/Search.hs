@@ -22,8 +22,7 @@ import           Data.ByteString.Lazy (ByteString)
 import           Data.HashMap.Strict  (insert)
 import           Data.Text            (pack)
 import           Network.Wreq
-import           Yuntan.Base          (Gateway (getGWUri),
-                                       getOptionsAndSignJSON)
+import           Yuntan.Base          (Gateway (host), getOptionsAndSignJSON)
 import           Yuntan.Types.Result  (ErrResult)
 import           Yuntan.Utils.Wreq    (responseEitherJSON)
 
@@ -36,14 +35,14 @@ commonRequest :: (Options -> String -> ByteString -> IO (Response ByteString))
 commonRequest req path v gw = do
   opts <- getOptionsAndSignJSON (insertPathName v path) gw
   responseEitherJSON $ req opts uri (encode v)
-  where uri = getGWUri gw ++ path
+  where uri = host gw ++ path
 
 commonRequest_ :: (Options -> String -> IO (Response ByteString))
               -> String -> Gateway -> IO (Either ErrResult Value)
 commonRequest_ req path gw = do
   opts <- getOptionsAndSignJSON (object [ "pathname" .= path ]) gw
   responseEitherJSON $ req opts uri
-  where uri = getGWUri gw ++ path
+  where uri = host gw ++ path
 
 -- put "/api/:indexName"
 createIndex :: String -> Value -> Gateway -> IO (Either ErrResult Value)

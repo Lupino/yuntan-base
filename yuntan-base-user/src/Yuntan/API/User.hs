@@ -24,19 +24,19 @@ import           Yuntan.Types.ListResult (From, ListResult, Size)
 import           Yuntan.Types.Result     (ErrResult, OkResult)
 import           Yuntan.Types.User
 
-createUser       :: AppEnv u => UserName -> Password -> GenHaxl u (Either ErrResult User)
-getUser          :: AppEnv u => UserName -> GenHaxl u (Either ErrResult User)
+createUser       :: AppEnv u => UserName -> Password -> GenHaxl u User
+getUser          :: AppEnv u => UserName -> GenHaxl u User
 getUsers         :: AppEnv u => From -> Size -> GenHaxl u (ListResult User)
-verifyPasswd     :: AppEnv u => UserName -> Password -> GenHaxl u (Either ErrResult (OkResult String))
-removeUser       :: AppEnv u => UserName -> GenHaxl u (Either ErrResult (OkResult String))
-updateUserName   :: AppEnv u => UserName -> UserName -> GenHaxl u (Either ErrResult (OkResult String))
-updateUserPasswd :: AppEnv u => UserName -> Password -> GenHaxl u (Either ErrResult (OkResult String))
-updateUserExtra  :: AppEnv u => UserName -> Extra -> GenHaxl u (Either ErrResult (OkResult String))
-removeUserExtra  :: AppEnv u => UserName -> Extra -> GenHaxl u (Either ErrResult (OkResult String))
-clearUserExtra   :: AppEnv u => UserName -> GenHaxl u (Either ErrResult (OkResult String))
-createBind       :: AppEnv u => UserName -> Service -> ServiceName -> Extra -> GenHaxl u (Either ErrResult Bind)
-getBind          :: AppEnv u => ServiceName -> GenHaxl u (Either ErrResult Bind)
-deleteBind       :: AppEnv u => BindID -> GenHaxl u (Either ErrResult (OkResult String))
+verifyPasswd     :: AppEnv u => UserName -> Password -> GenHaxl u (OkResult String)
+removeUser       :: AppEnv u => UserName -> GenHaxl u (OkResult String)
+updateUserName   :: AppEnv u => UserName -> UserName -> GenHaxl u (OkResult String)
+updateUserPasswd :: AppEnv u => UserName -> Password -> GenHaxl u (OkResult String)
+updateUserExtra  :: AppEnv u => UserName -> Extra -> GenHaxl u (OkResult String)
+removeUserExtra  :: AppEnv u => UserName -> Extra -> GenHaxl u (OkResult String)
+clearUserExtra   :: AppEnv u => UserName -> GenHaxl u (OkResult String)
+createBind       :: AppEnv u => UserName -> Service -> ServiceName -> Extra -> GenHaxl u Bind
+getBind          :: AppEnv u => ServiceName -> GenHaxl u Bind
+deleteBind       :: AppEnv u => BindID -> GenHaxl u (OkResult String)
 
 createUser n p        = uncachedRequest (CreateUser n p)
 getUser n             = dataFetch (GetUser n)

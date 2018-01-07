@@ -34,19 +34,19 @@ import           Control.Concurrent.QSem
 -- Data source implementation.
 
 data UserReq a where
-  CreateUser       :: UserName -> Password -> UserReq (Either ErrResult User)
-  GetUser          :: UserName -> UserReq (Either ErrResult User)
+  CreateUser       :: UserName -> Password -> UserReq User
+  GetUser          :: UserName -> UserReq User
   GetUsers         :: From -> Size -> UserReq (ListResult User)
-  VerifyPasswd     :: UserName -> Password -> UserReq (Either ErrResult (OkResult String))
-  RemoveUser       :: UserName -> UserReq (Either ErrResult (OkResult String))
-  UpdateUserName   :: UserName -> UserName -> UserReq (Either ErrResult (OkResult String))
-  UpdateUserPasswd :: UserName -> Password -> UserReq (Either ErrResult (OkResult String))
-  UpdateUserExtra  :: UserName -> Extra -> UserReq (Either ErrResult (OkResult String))
-  RemoveUserExtra  :: UserName -> Extra -> UserReq (Either ErrResult (OkResult String))
-  ClearUserExtra   :: UserName -> UserReq (Either ErrResult (OkResult String))
-  CreateBind       :: UserName -> Service -> ServiceName -> Extra -> UserReq (Either ErrResult Bind)
-  GetBind          :: ServiceName -> UserReq (Either ErrResult Bind)
-  DeleteBind       :: BindID -> UserReq (Either ErrResult (OkResult String))
+  VerifyPasswd     :: UserName -> Password -> UserReq (OkResult String)
+  RemoveUser       :: UserName -> UserReq (OkResult String)
+  UpdateUserName   :: UserName -> UserName -> UserReq (OkResult String)
+  UpdateUserPasswd :: UserName -> Password -> UserReq (OkResult String)
+  UpdateUserExtra  :: UserName -> Extra -> UserReq (OkResult String)
+  RemoveUserExtra  :: UserName -> Extra -> UserReq (OkResult String)
+  ClearUserExtra   :: UserName -> UserReq (OkResult String)
+  CreateBind       :: UserName -> Service -> ServiceName -> Extra -> UserReq Bind
+  GetBind          :: ServiceName -> UserReq Bind
+  DeleteBind       :: BindID -> UserReq (OkResult String)
 
   deriving (Typeable)
 

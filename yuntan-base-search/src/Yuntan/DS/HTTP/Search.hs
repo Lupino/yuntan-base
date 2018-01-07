@@ -24,78 +24,78 @@ import           Data.Text            (pack)
 import           Network.Wreq
 import           Yuntan.Base          (Gateway (host), getOptionsAndSignJSON)
 import           Yuntan.Types.Result  (ErrResult)
-import           Yuntan.Utils.Wreq    (responseEitherJSON)
+import           Yuntan.Utils.Wreq    (responseJSON)
 
 insertPathName :: Value -> String -> Value
 insertPathName (Object v') path = Object $ insert "pathname" (String $ pack path) v'
 insertPathName _           _    = error "Unsupported"
 
 commonRequest :: (Options -> String -> ByteString -> IO (Response ByteString))
-              -> String -> Value -> Gateway -> IO (Either ErrResult Value)
+              -> String -> Value -> Gateway -> IO Value
 commonRequest req path v gw = do
   opts <- getOptionsAndSignJSON (insertPathName v path) gw
-  responseEitherJSON $ req opts uri (encode v)
+  responseJSON $ req opts uri (encode v)
   where uri = host gw ++ path
 
 commonRequest_ :: (Options -> String -> IO (Response ByteString))
-              -> String -> Gateway -> IO (Either ErrResult Value)
+              -> String -> Gateway -> IO Value
 commonRequest_ req path gw = do
   opts <- getOptionsAndSignJSON (object [ "pathname" .= path ]) gw
-  responseEitherJSON $ req opts uri
+  responseJSON $ req opts uri
   where uri = host gw ++ path
 
 -- put "/api/:indexName"
-createIndex :: String -> Value -> Gateway -> IO (Either ErrResult Value)
+createIndex :: String -> Value -> Gateway -> IO Value
 createIndex indexName = commonRequest putWith ("/api/" ++ indexName)
 
 -- get "/api/:indexName"
-getIndex :: String -> Gateway -> IO (Either ErrResult Value)
+getIndex :: String -> Gateway -> IO Value
 getIndex indexName = commonRequest_ getWith ("/api/" ++ indexName)
 
 -- delete "/api/:indexName"
-deleteIndex :: String -> Gateway -> IO (Either ErrResult Value)
+deleteIndex :: String -> Gateway -> IO Value
 deleteIndex indexName = commonRequest_ deleteWith ("/api/" ++ indexName)
 
 -- get "/api"
-listIndexes :: Gateway -> IO (Either ErrResult Value)
+listIndexes :: Gateway -> IO Value
 listIndexes = commonRequest_ getWith "/api"
 
 -- put "/api/:indexName/:docID"
-docIndex :: String -> String -> Value -> Gateway -> IO (Either ErrResult Value)
+docIndex :: String -> String -> Value -> Gateway -> IO Value
 docIndex indexName docID = commonRequest putWith path
   where path = concat ["/api/", indexName, "/", docID]
 
 -- get "/api/:indexName/_count"
-docCount :: String -> Gateway -> IO (Either ErrResult Value)
+docCount :: String -> Gateway -> IO Value
 docCount indexName = commonRequest_ getWith path
   where path = concat ["/api/", indexName, "/_count"]
 
 -- get "/api/:indexName/:docID"
-docGet :: String -> String -> Gateway -> IO (Either ErrResult Value)
+docGet :: String -> String -> Gateway -> IO Value
 docGet indexName docID = commonRequest_ getWith path
   where path = concat ["/api/", indexName, "/", docID]
 
 -- delete "/api/:indexName/:docID"
-docDelete :: String -> String -> Gateway -> IO (Either ErrResult Value)
+docDelete :: String -> String -> Gateway -> IO Value
 docDelete indexName docID = commonRequest_ deleteWith path
   where path = concat ["/api/", indexName, "/", docID]
 
 -- post "/api/:indexName/_search"
-search :: String -> Value -> Gateway -> IO (Either ErrResult Value)
+search :: String -> Value -> Gateway -> IO Value
 search indexName = commonRequest postWith path
   where path = concat ["/api/", indexName, "/_search"]
 
 -- get "/api/:indexName/_fields"
-listFields :: String -> Gateway -> IO (Either ErrResult Value)
+listFields :: String -> Gateway -> IO Value
 listFields indexName = commonRequest_ getWith path
   where path = concat ["/api/", indexName, "/_fields"]
 
 -- get "/api/:indexName/:docID/_debug"
-debug :: String -> String -> Gateway -> IO (Either ErrResult Value)
+debug :: String -> String -> Gateway -> IO Value
 debug indexName docID = commonRequest_ getWith path
   where path = concat ["/api/", indexName, "/", docID, "/_debug"]
 
 -- post "/api/_aliases"
-alias :: Value -> Gateway -> IO (Either ErrResult Value)
+alias :: Value -> Gateway -> IO Value
 alias = commonRequest postWith path
   where path = "/api/_aliases"

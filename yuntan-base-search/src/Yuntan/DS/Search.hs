@@ -33,18 +33,18 @@ import           Control.Concurrent.QSem
 -- Data source implementation.
 
 data SearchReq a where
-  CreateIndex :: String -> Value -> SearchReq (Either ErrResult Value)
-  GetIndex    :: String -> SearchReq (Either ErrResult Value)
-  DeleteIndex :: String -> SearchReq (Either ErrResult Value)
-  ListIndexes :: SearchReq (Either ErrResult Value)
-  DocIndex    :: String -> String -> Value -> SearchReq (Either ErrResult Value)
-  DocCount    :: String -> SearchReq (Either ErrResult Value)
-  DocGet      :: String -> String -> SearchReq (Either ErrResult Value)
-  DocDelete   :: String -> String -> SearchReq (Either ErrResult Value)
-  Search      :: String -> Value -> SearchReq (Either ErrResult Value)
-  ListFields  :: String -> SearchReq (Either ErrResult Value)
-  Debug       :: String -> String -> SearchReq (Either ErrResult Value)
-  Alias       :: Value -> SearchReq (Either ErrResult Value)
+  CreateIndex :: String -> Value -> SearchReq Value
+  GetIndex    :: String -> SearchReq Value
+  DeleteIndex :: String -> SearchReq Value
+  ListIndexes :: SearchReq Value
+  DocIndex    :: String -> String -> Value -> SearchReq Value
+  DocCount    :: String -> SearchReq Value
+  DocGet      :: String -> String -> SearchReq Value
+  DocDelete   :: String -> String -> SearchReq Value
+  Search      :: String -> Value -> SearchReq Value
+  ListFields  :: String -> SearchReq Value
+  Debug       :: String -> String -> SearchReq Value
+  Alias       :: Value -> SearchReq Value
 
   deriving (Typeable)
 

@@ -35,11 +35,11 @@ import           Control.Concurrent.QSem
 -- Data source implementation.
 
 data CoinReq a where
-  SaveCoin         :: Name -> Coin -> CoinReq (Either ErrResult (OkResult Score))
-  GetCoinScore     :: Name -> CoinReq (Either ErrResult (OkResult Score))
+  SaveCoin         :: Name -> Coin -> CoinReq (OkResult Score)
+  GetCoinScore     :: Name -> CoinReq (OkResult Score)
   GetCoinList      :: Name -> From -> Size -> CoinReq (ListResult Coin)
-  GetCoinInfo      :: Name -> CoinReq (Either ErrResult CoinInfo)
-  SetCoinInfo      :: Name -> Value -> CoinReq (Either ErrResult ())
+  GetCoinInfo      :: Name -> CoinReq CoinInfo
+  SetCoinInfo      :: Name -> Value -> CoinReq ()
 
   deriving (Typeable)
 

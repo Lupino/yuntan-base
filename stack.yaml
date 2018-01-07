@@ -38,7 +38,7 @@ resolver: lts-10.2
 packages:
 - location:
     git: https://github.com/Lupino/yuntan-common.git
-    commit: 2ec5bf2176f327da715016ee4d93cc317870b9d5
+    commit: 7904e1965f13786e902a639ee50ef925a23a65e5
   extra-dep: true
   subdirs:
   - yuntan-common-signature

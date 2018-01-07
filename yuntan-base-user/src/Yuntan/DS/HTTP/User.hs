@@ -35,10 +35,10 @@ b2t = LT.fromStrict . decodeUtf8 . LB.toStrict
 --   post   "/api/users/"
 createUser :: UserName -> Password -> Gateway -> IO User
 createUser n p gw = do
-  opts <- getOptionsAndSign [ ("username", LT.fromStrict n)
-                            , ("passwd", LT.fromStrict p)
-                            , ("pathname", "/api/users/")
-                            ] gw
+  opts <- getOptionsAndSign "POST" "/api/users/"
+    [ ("username", LT.fromStrict n)
+    , ("passwd", LT.fromStrict p)
+    ] gw
   responseJSON $ postWith opts uri [ "username" := encodeUtf8 n
                                    , "passwd"   := encodeUtf8 p
                                    ]
@@ -48,7 +48,7 @@ createUser n p gw = do
 --   get    "/api/users/:uidOrName/"
 getUser :: UserName -> Gateway -> IO User
 getUser n gw = do
-  opts <- getOptionsAndSign [ ("pathname", LT.pack path) ] gw
+  opts <- getOptionsAndSign "GET" path [] gw
   responseJSON $ getWith opts uri
 
   where path = concat [ "/api/users/", unpack n, "/" ]
@@ -57,10 +57,8 @@ getUser n gw = do
 --   get    "/api/users/"
 getUsers :: From -> Size -> Gateway -> IO (ListResult User)
 getUsers f s gw = do
-  opts <- getOptionsAndSign [ ("from", LT.pack $ show f)
-                            , ("size", LT.pack $ show s)
-                            , ("pathname", "/api/users/")
-                            ] gw
+  opts <- getOptionsAndSign "GET" "/api/users/"
+    [("from", LT.pack $ show f), ("size", LT.pack $ show s)] gw
   responseListResult_ "users" $ getWith opts uri
 
   where uri = concat [ host gw, "/api/users/?from=", show f, "&size=", show s]
@@ -68,9 +66,7 @@ getUsers f s gw = do
 --   post   "/api/users/:uidOrName/verify"
 verifyPasswd :: UserName -> Password -> Gateway -> IO (OkResult String)
 verifyPasswd n p gw = do
-  opts <- getOptionsAndSign [ ("passwd", LT.fromStrict p)
-                            , ("pathname", LT.pack path)
-                            ] gw
+  opts <- getOptionsAndSign "POST" path [("passwd", LT.fromStrict p)] gw
   responseJSON $ postWith opts uri [ "passwd" := encodeUtf8 p ]
 
   where path = concat [ "/api/users/", unpack n, "/verify" ]
@@ -79,7 +75,7 @@ verifyPasswd n p gw = do
 --   delete "/api/users/:uidOrName/"
 removeUser :: UserName -> Gateway -> IO (OkResult String)
 removeUser n gw = do
-  opts <- getOptionsAndSign [ ("pathname", LT.pack path) ] gw
+  opts <- getOptionsAndSign "DELETE" path [] gw
   responseJSON $ deleteWith opts uri
 
   where path = concat [ "/api/users/", unpack n, "/" ]
@@ -88,9 +84,7 @@ removeUser n gw = do
 --   post   "/api/users/:uidOrName/"
 updateUserName :: UserName -> UserName -> Gateway -> IO (OkResult String)
 updateUserName n n1 gw = do
-  opts <- getOptionsAndSign [ ("username", LT.fromStrict n1)
-                            , ("pathname", LT.pack path)
-                            ] gw
+  opts <- getOptionsAndSign "POST" path [("username", LT.fromStrict n1)] gw
   responseJSON $ postWith opts uri [ "username" := encodeUtf8 n1 ]
 
   where path = concat [ "/api/users/", unpack n, "/" ]
@@ -99,9 +93,7 @@ updateUserName n n1 gw = do
 --   post   "/api/users/:uidOrName/passwd"
 updateUserPasswd :: UserName -> Password -> Gateway -> IO (OkResult String)
 updateUserPasswd n p gw = do
-  opts <- getOptionsAndSign [ ("passwd", LT.fromStrict p)
-                            , ("pathname", LT.pack path)
-                            ] gw
+  opts <- getOptionsAndSign "POST" path [("passwd", LT.fromStrict p)] gw
   responseJSON $ postWith opts uri [ "passwd" := encodeUtf8 p ]
 
   where path = concat [ "/api/users/", unpack n, "/passwd" ]
@@ -117,9 +109,7 @@ removeUserExtra = userExtra "DELETE"
 
 userExtra :: String -> UserName -> Extra -> Gateway -> IO (OkResult String)
 userExtra m n ex gw = do
-  opts <- getOptionsAndSign [ ("extra", b2t ex')
-                            , ("pathname", LT.pack path)
-                            ] gw
+  opts <- getOptionsAndSign m path [("extra", b2t ex')] gw
   responseJSON $ customPayloadMethodWith m opts uri [ "extra" := ex' ]
 
   where path = concat [ "/api/users/", unpack n, "/extra" ]
@@ -129,7 +119,7 @@ userExtra m n ex gw = do
 --   post   "/api/users/:uidOrName/extra/clear"
 clearUserExtra :: UserName -> Gateway -> IO (OkResult String)
 clearUserExtra n gw = do
-  opts <- getOptionsAndSign [ ("pathname", LT.pack path) ] gw
+  opts <- getOptionsAndSign "POST" path [] gw
   responseJSON $ customMethodWith "POST" opts uri
 
   where path = concat [ "/api/users/", unpack n, "/extra/clear" ]
@@ -138,11 +128,11 @@ clearUserExtra n gw = do
 --   post   "/api/users/:uidOrName/binds"
 createBind :: UserName -> Service -> ServiceName -> Extra -> Gateway -> IO Bind
 createBind n s sn ex gw = do
-  opts <- getOptionsAndSign [ ("service", LT.fromStrict s)
-                            , ("name", LT.fromStrict sn)
-                            , ("extra", b2t ex')
-                            , ("pathname", LT.pack path)
-                            ] gw
+  opts <- getOptionsAndSign "POST" path
+    [ ("service", LT.fromStrict s)
+    , ("name", LT.fromStrict sn)
+    , ("extra", b2t ex')
+    ] gw
   responseJSON $ postWith opts uri [ "service" := encodeUtf8 s
                                    , "name"    := encodeUtf8 sn
                                    , "extra"   := ex'
@@ -155,9 +145,7 @@ createBind n s sn ex gw = do
 --   get    "/api/binds/"
 getBind :: ServiceName -> Gateway -> IO Bind
 getBind sn gw = do
-  opts <- getOptionsAndSign [ ("name", LT.fromStrict sn)
-                            , ("pathname", "/api/binds/")
-                            ] gw
+  opts <- getOptionsAndSign "GET" "/api/binds/" [("name", LT.fromStrict sn)] gw
   responseJSON $ getWith opts uri
 
   where uri = concat [ host gw, "/api/binds/?name=", unpack sn ]
@@ -165,7 +153,7 @@ getBind sn gw = do
 --   delete "/api/binds/:bind_id"
 deleteBind :: BindID -> Gateway -> IO (OkResult String)
 deleteBind bid gw = do
-  opts <- getOptionsAndSign [ ("pathname", LT.pack path) ] gw
+  opts <- getOptionsAndSign "DELETE" path [] gw
   responseJSON $ deleteWith opts uri
 
   where path = "/api/binds/" ++ show bid

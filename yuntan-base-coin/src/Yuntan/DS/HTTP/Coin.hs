@@ -23,12 +23,12 @@ import           Yuntan.Utils.Wreq
 -- post "/api/coins/:name/"
 saveCoin :: Name -> Coin -> Gateway -> IO (OkResult Score)
 saveCoin n c gw = do
-  opts <- getOptionsAndSign [ ("score", LT.pack $ show score)
-                            , ("type", LT.pack $ show tp)
-                            , ("desc", LT.pack $ unpack desc)
-                            , ("created_at", LT.pack $ show ct)
-                            , ("pathname", LT.pack path)
-                            ] gw
+  opts <- getOptionsAndSign "POST" path
+    [ ("score", LT.pack $ show score)
+    , ("type", LT.pack $ show tp)
+    , ("desc", LT.pack $ unpack desc)
+    , ("created_at", LT.pack $ show ct)
+    ] gw
   responseOkResult_ "score" $ postWith opts uri [ "score" := score
                                                 , "type" := show tp
                                                 , "desc" := desc
@@ -46,7 +46,7 @@ saveCoin n c gw = do
 -- get "/api/coins/:name/score/"
 getCoinScore :: Name -> Gateway -> IO (OkResult Score)
 getCoinScore n gw = do
-  opts <- getOptionsAndSign [ ("pathname", LT.pack path) ] gw
+  opts <- getOptionsAndSign "GET" path [] gw
   responseOkResult_ "score" $ getWith opts uri
 
   where path = "/api/coins/" ++ unpack n ++ "/score/"
@@ -56,10 +56,8 @@ getCoinScore n gw = do
 -- get "/api/coins/:name/"
 getCoinList :: Name -> From -> Size -> Gateway -> IO (ListResult Coin)
 getCoinList n f s gw = do
-  opts <- getOptionsAndSign [ ("from", LT.pack $ show f)
-                            , ("size", LT.pack $ show s)
-                            , ("pathname", LT.pack path)
-                            ] gw
+  opts <- getOptionsAndSign "GET" path
+    [("from", LT.pack $ show f) , ("size", LT.pack $ show s)] gw
   responseListResult_ "coins" $ getWith opts uri
 
   where path = concat [ "/api/coins/", unpack n, "/"]
@@ -68,7 +66,7 @@ getCoinList n f s gw = do
 -- get "/api/coins/:name/info/"
 getCoinInfo :: Name -> Gateway -> IO CoinInfo
 getCoinInfo n gw = do
-  opts <- getOptionsAndSign [ ("pathname", LT.pack path) ] gw
+  opts <- getOptionsAndSign "GET" path [] gw
   responseJSON $ getWith opts uri
 
   where path = concat [ "/api/coins/", unpack n, "/info/" ]
@@ -77,12 +75,8 @@ getCoinInfo n gw = do
 -- put "/api/coins/:name/info/"
 setCoinInfo :: Name -> Value -> Gateway -> IO ()
 setCoinInfo n v gw = do
-  opts <- getOptionsAndSignJSON (argv v) gw
+  opts <- getOptionsAndSignJSON "PUT" path v gw
   eitherToError $ responseEither' $ putWith opts uri (encode v)
 
   where path = concat [ "/api/coins/", unpack n, "/info/" ]
         uri = host gw ++ path
-
-        argv :: Value -> Value
-        argv (Object v') = Object $ insert "pathname" (String $ pack path) v'
-        argv _           = error "Unsupport coin info"

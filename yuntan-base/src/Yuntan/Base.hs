@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings   #-}
+{-# LANGUAGE RecordWildCards     #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 module Yuntan.Base
   (
@@ -15,14 +16,18 @@ import           Control.Lens           ((&), (.~))
 import           Data.Aeson             (Value (..))
 import qualified Data.ByteString.Char8  as B (ByteString, pack)
 import           Data.HashMap.Strict    (insert)
+import qualified Data.HashMap.Strict    as HM
+import           Data.Int               (Int64)
+import           Data.IORef             (atomicModifyIORef')
 import           Data.Text              (pack)
 import qualified Data.Text.Lazy         as LT (Text, pack)
 import           Data.UnixTime
 import           Network.HTTP.Client    (Manager)
-import           Network.Wreq           (Options, defaults, header, manager)
-import           Yuntan.Types.Internal  (Gateway (..))
+import           Network.Wreq           (FormParam ((:=)), Options, defaults,
+                                         header, manager, postWith)
+import           Yuntan.Types.Internal  (Gateway (..), Method, Pathname)
 import           Yuntan.Utils.Signature (signJSON, signParams, signRaw)
-
+import           Yuntan.Utils.Wreq      (responseJSON)
 
 getMgr :: Manager -> Options
 getMgr mgr = defaults & manager .~ Right mgr
@@ -32,44 +37,62 @@ getOptions Gateway{appKey = key, mgr = mgr} =
   getMgr mgr & header "X-REQUEST-KEY" .~ [B.pack key]
              & header "User-Agent" .~ ["haskell yuntan-base-0.1.0.0"]
 
-getOptionsAndSign :: [(LT.Text, LT.Text)] -> Gateway -> IO Options
-getOptionsAndSign params Gateway{appKey = key, appSecret = sec, mgr = mgr} = do
+prepare :: (Pathname -> String -> String -> a -> Gateway -> IO Options) -> Method -> Pathname -> a -> Gateway -> IO Options
+prepare done method pathname params gw@Gateway{appSecret=[]} = do
+  DynamicSecret {..} <- makeSecret gw method pathname
+  opts <- done pathname (show timestamp) secret params gw
+  pure $ opts & header "X-REQUEST-NONCE" .~ [B.pack nonce]
+              & header "X-REQUEST-TYPE" .~ ["JSAPI"]
+
+prepare done method pathname params gw@Gateway{appSecret=sec} = do
   t <- show . toEpochTime <$> getUnixTime
-  let sign = signParams (B.pack sec) (("timestamp", LT.pack t):("key", LT.pack key):params)
+  done pathname t sec params gw
+
+getOptionsAndSign_ :: Pathname -> String -> String -> [(LT.Text, LT.Text)] -> Gateway -> IO Options
+getOptionsAndSign_ pathname ts sec params Gateway{appKey = key, mgr = mgr} = do
+  let sign = signParams (B.pack sec) (("pathname", LT.pack pathname):
+                                      ("timestamp", LT.pack ts):
+                                      ("key", LT.pack key):params)
       opts = getMgr mgr & header "X-REQUEST-KEY" .~ [B.pack key]
                         & header "X-REQUEST-SIGNATURE" .~ [sign]
-                        & header "X-REQUEST-TIME" .~ [B.pack t]
+                        & header "X-REQUEST-TIME" .~ [B.pack ts]
                         & header "User-Agent" .~ ["haskell yuntan-base-0.1.0.0"]
   return opts
 
-getOptionsAndSignJSON :: Value -> Gateway -> IO Options
-getOptionsAndSignJSON (Object v) Gateway{appKey = key, appSecret = sec, mgr = mgr} = do
-  t <- show . toEpochTime <$> getUnixTime
-  let v'   = insert "timestamp" (String $ pack t) $ insert "key" (String $ pack key) v
+getOptionsAndSign = prepare getOptionsAndSign_
+
+getOptionsAndSignJSON_ :: Pathname -> String -> String -> Value -> Gateway -> IO Options
+getOptionsAndSignJSON_ pathname ts sec (Object v) Gateway{appKey = key, mgr = mgr} = do
+  let v'   = insert "timestamp" (String $ pack ts)
+           $ insert "pathname" (String $ pack pathname)
+           $ insert "key" (String $ pack key) v
       sign = signJSON (B.pack sec) (Object v')
       opts = getMgr mgr & header "X-REQUEST-KEY" .~ [B.pack key]
                         & header "X-REQUEST-SIGNATURE" .~ [sign]
-                        & header "X-REQUEST-TIME" .~ [B.pack t]
+                        & header "X-REQUEST-TIME" .~ [B.pack ts]
                         & header "User-Agent" .~ ["haskell yuntan-base-0.1.0.0"]
                         & header "Content-Type" .~ ["application/json"]
   return opts
 
-getOptionsAndSignJSON (Array _) _ = error "Unsupport Aeson.Value signature"
-getOptionsAndSignJSON (String _) _ = error "Unsupport Aeson.Value signature"
-getOptionsAndSignJSON (Number _) _ = error "Unsupport Aeson.Value signature"
-getOptionsAndSignJSON (Bool _) _ = error "Unsupport Aeson.Value signature"
-getOptionsAndSignJSON Null _ = error "Unsupport Aeson.Value signature"
+getOptionsAndSignJSON_ _ _ _ (Array _) _ = error "Unsupport Aeson.Value signature"
+getOptionsAndSignJSON_ _ _ _ (String _) _ = error "Unsupport Aeson.Value signature"
+getOptionsAndSignJSON_ _ _ _ (Number _) _ = error "Unsupport Aeson.Value signature"
+getOptionsAndSignJSON_ _ _ _ (Bool _) _ = error "Unsupport Aeson.Value signature"
+getOptionsAndSignJSON_ _ _ _ Null _ = error "Unsupport Aeson.Value signature"
 
-getOptionsAndSignRaw :: String -> B.ByteString -> Gateway -> IO Options
-getOptionsAndSignRaw path dat Gateway{appKey = key, appSecret = sec, mgr = mgr} = do
-  t <- show . toEpochTime <$> getUnixTime
+getOptionsAndSignJSON = prepare getOptionsAndSignJSON_
+
+getOptionsAndSignRaw_ :: Pathname -> String -> String -> B.ByteString -> Gateway -> IO Options
+getOptionsAndSignRaw_ path ts sec dat Gateway{appKey = key, mgr = mgr} = do
   let sign = signRaw (B.pack sec) [ ("key", B.pack key)
-                                  , ("timestamp", B.pack t)
+                                  , ("timestamp", B.pack ts)
                                   , ("raw", dat)
                                   , ("pathname", B.pack path)
                                   ]
       opts = getMgr mgr & header "X-REQUEST-KEY" .~ [B.pack key]
                         & header "X-REQUEST-SIGNATURE" .~ [sign]
-                        & header "X-REQUEST-TIME" .~ [B.pack t]
+                        & header "X-REQUEST-TIME" .~ [B.pack ts]
                         & header "User-Agent" .~ ["haskell yuntan-base-0.1.0.0"]
   return opts
+
+getOptionsAndSignRaw = prepare getOptionsAndSignRaw_

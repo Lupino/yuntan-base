@@ -54,8 +54,7 @@ instance FromJSON Gateway where
     numThreads <- o .:  "numThreads" .!= 1
     timeout    <- o .:? "timeout"    .!= 30
     connCount  <- o .:? "conn-count" .!= 10
-    return Gateway{ mgr = Nothing, makeSecret = defaultMakeSecret, ..}
+    return Gateway{ mgr = Nothing, ..}
 
 class AppEnv a where
   gateway :: a -> String -> Gateway
-

@@ -4,7 +4,7 @@
 module Yuntan.Types.Internal
   (
     Gateway (..)
-  , initMgr
+  , initGateway
   , AppEnv (..)
   ) where
 
@@ -34,8 +34,8 @@ instance Show Gateway where
                   , ", secret = ", appSecret a
                   ]
 
-initMgr :: Gateway -> IO Gateway
-initMgr gw@Gateway{..} = do
+initGateway :: Gateway -> IO Gateway
+initGateway gw@Gateway{..} = do
   mgr' <- newManager settings { managerConnCount = connCount
                               , managerResponseTimeout = responseTimeoutMicro $ timeout * 1000
                               }

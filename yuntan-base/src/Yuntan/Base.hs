@@ -24,9 +24,8 @@ import           Yuntan.Types.Internal  (Gateway (..))
 import           Yuntan.Utils.Signature (signJSON, signParams, signRaw)
 
 
-getMgr :: Maybe Manager -> Options
-getMgr Nothing    = defaults
-getMgr (Just mgr) = defaults & manager .~ Right mgr
+getMgr :: Manager -> Options
+getMgr mgr = defaults & manager .~ Right mgr
 
 getOptions :: Gateway -> Options
 getOptions Gateway{appKey = key, mgr = mgr} =

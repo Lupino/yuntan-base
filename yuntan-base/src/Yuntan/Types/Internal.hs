@@ -24,7 +24,7 @@ data Gateway = Gateway { host       :: String
                        , numThreads :: Int
                        , timeout    :: Int
                        , connCount  :: Int
-                       , mgr        :: Maybe Manager
+                       , mgr        :: Manager
                        -- numThreads of fetch async for haxl
                        }
 
@@ -40,7 +40,7 @@ initMgr gw@Gateway{..} = do
                               , managerResponseTimeout = responseTimeoutMicro $ timeout * 1000
                               }
 
-  return gw { mgr = Just mgr' }
+  return gw { mgr = mgr' }
 
   where settings = if startswith "https" host then tlsManagerSettings
                                               else defaultManagerSettings
@@ -54,7 +54,7 @@ instance FromJSON Gateway where
     numThreads <- o .:  "numThreads" .!= 1
     timeout    <- o .:? "timeout"    .!= 30
     connCount  <- o .:? "conn-count" .!= 10
-    return Gateway{ mgr = Nothing, ..}
+    return Gateway{ mgr = error "noinitial", ..}
 
 class AppEnv a where
   gateway :: a -> String -> Gateway

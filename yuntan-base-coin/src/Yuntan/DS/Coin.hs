@@ -25,7 +25,7 @@ import           Yuntan.DS.HTTP.Coin
 import           Yuntan.Types.Coin
 import           Yuntan.Types.Internal    hiding (numThreads)
 import           Yuntan.Types.ListResult  (From, ListResult, Size)
-import           Yuntan.Types.Result      (ErrResult, OkResult)
+import           Yuntan.Types.Result      (OkResult)
 
 import qualified Control.Exception        (SomeException, bracket_, try)
 

@@ -20,7 +20,6 @@ import           Haxl.Core             (GenHaxl, dataFetch, uncachedRequest)
 
 import           Yuntan.DS.Search
 import           Yuntan.Types.Internal
-import           Yuntan.Types.Result   (ErrResult)
 
 createIndex :: AppEnv u => String -> Value -> GenHaxl u Value
 getIndex    :: AppEnv u => String -> GenHaxl u Value

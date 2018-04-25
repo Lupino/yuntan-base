@@ -25,7 +25,7 @@ import qualified Data.Text.Lazy             as LT (Text, fromStrict, pack)
 import           Network.Wreq
 import           Yuntan.Base
 import           Yuntan.Types.ListResult    (From, ListResult, Size)
-import           Yuntan.Types.Result        (ErrResult, OkResult)
+import           Yuntan.Types.Result        (OkResult)
 import           Yuntan.Types.User
 import           Yuntan.Utils.Wreq
 

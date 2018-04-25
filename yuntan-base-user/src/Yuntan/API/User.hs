@@ -21,7 +21,7 @@ import           Haxl.Core               (GenHaxl, dataFetch, uncachedRequest)
 import           Yuntan.DS.User
 import           Yuntan.Types.Internal
 import           Yuntan.Types.ListResult (From, ListResult, Size)
-import           Yuntan.Types.Result     (ErrResult, OkResult)
+import           Yuntan.Types.Result     (OkResult)
 import           Yuntan.Types.User
 
 createUser       :: AppEnv u => UserName -> Password -> GenHaxl u User

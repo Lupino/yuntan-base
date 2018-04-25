@@ -23,7 +23,7 @@ import           Haxl.Core                (BlockedFetch (..), DataSource,
 import           Yuntan.DS.HTTP.User
 import           Yuntan.Types.Internal    hiding (numThreads)
 import           Yuntan.Types.ListResult  (From, ListResult, Size)
-import           Yuntan.Types.Result      (ErrResult, OkResult)
+import           Yuntan.Types.Result      (OkResult)
 import           Yuntan.Types.User
 
 import qualified Control.Exception        (SomeException, bracket_, try)

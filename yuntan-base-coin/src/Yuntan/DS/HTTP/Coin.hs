@@ -9,15 +9,14 @@ module Yuntan.DS.HTTP.Coin
   , setCoinInfo
   ) where
 
-import           Data.Aeson              (Value (Object, String), encode)
-import           Data.HashMap.Strict     (insert)
-import           Data.Text               (pack, unpack)
+import           Data.Aeson              (Value, encode)
+import           Data.Text               (unpack)
 import qualified Data.Text.Lazy          as LT (pack)
 import           Network.Wreq
 import           Yuntan.Base
 import           Yuntan.Types.Coin
 import           Yuntan.Types.ListResult (From, ListResult, Size)
-import           Yuntan.Types.Result     (ErrResult, OkResult)
+import           Yuntan.Types.Result     (OkResult)
 import           Yuntan.Utils.Wreq
 
 -- post "/api/coins/:name/"

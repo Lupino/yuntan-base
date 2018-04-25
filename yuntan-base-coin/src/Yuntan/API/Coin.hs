@@ -15,7 +15,7 @@ import           Yuntan.DS.Coin
 import           Yuntan.Types.Coin
 import           Yuntan.Types.Internal
 import           Yuntan.Types.ListResult (From, ListResult, Size)
-import           Yuntan.Types.Result     (ErrResult, OkResult)
+import           Yuntan.Types.Result     (OkResult)
 
 saveCoin     :: AppEnv u => Name -> Coin -> GenHaxl u (OkResult Score)
 getCoinScore :: AppEnv u => Name -> GenHaxl u (OkResult Score)

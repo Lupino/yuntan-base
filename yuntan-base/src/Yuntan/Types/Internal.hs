@@ -11,12 +11,9 @@ module Yuntan.Types.Internal
   , Pathname
   ) where
 
-import           Data.Aeson              (FromJSON (..), Value, withObject,
-                                          (.!=), (.:), (.:?))
-import           Data.HashMap.Strict     (HashMap)
-import qualified Data.HashMap.Strict     as HM (empty)
+import           Data.Aeson              (FromJSON (..), withObject, (.!=),
+                                          (.:), (.:?))
 import           Data.Int                (Int64)
-import           Data.IORef              (IORef, newIORef)
 import           Data.String.Utils       (startswith)
 import           Network.HTTP.Client     (Manager, defaultManagerSettings,
                                           managerConnCount,
@@ -63,7 +60,12 @@ instance FromJSON Gateway where
     numThreads <- o .:  "numThreads"   .!= 1
     timeout    <- o .:? "timeout"      .!= 30
     connCount  <- o .:? "conn-count"   .!= 10
-    return Gateway { mgr = error "uninitial", makeSecret = error "noimplement", .. }
+    return Gateway
+      { mgr = error "uninitial"
+      , mgrDyn = error "uninitial"
+      , makeSecret = error "noimplement"
+      , ..
+      }
 
 class AppEnv a where
   gateway :: a -> String -> Gateway

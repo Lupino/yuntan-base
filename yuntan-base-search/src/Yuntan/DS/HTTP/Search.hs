@@ -16,8 +16,7 @@ module Yuntan.DS.HTTP.Search
   , alias
   ) where
 
-import           Data.Aeson           (Value (Object, String), encode, object,
-                                       (.=))
+import           Data.Aeson           (Value (Object, String), encode, object)
 import           Data.ByteString.Lazy (ByteString)
 import           Data.HashMap.Strict  (insert)
 import           Data.Text            (pack)

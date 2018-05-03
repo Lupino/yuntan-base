@@ -16,18 +16,13 @@ import           Control.Lens           ((&), (.~))
 import           Data.Aeson             (Value (..))
 import qualified Data.ByteString.Char8  as B (ByteString, pack)
 import           Data.HashMap.Strict    (insert)
-import qualified Data.HashMap.Strict    as HM
-import           Data.Int               (Int64)
-import           Data.IORef             (atomicModifyIORef')
 import           Data.Text              (pack)
 import qualified Data.Text.Lazy         as LT (Text, pack)
 import           Data.UnixTime
 import           Network.HTTP.Client    (Manager)
-import           Network.Wreq           (FormParam ((:=)), Options, defaults,
-                                         header, manager, postWith)
+import           Network.Wreq           (Options, defaults, header, manager)
 import           Yuntan.Types.Internal  (Gateway (..), Method, Pathname)
 import           Yuntan.Utils.Signature (signJSON, signParams, signRaw)
-import           Yuntan.Utils.Wreq      (responseJSON)
 
 getMgr :: Manager -> Options
 getMgr mgr = defaults & manager .~ Right mgr
@@ -44,7 +39,7 @@ prepare done method pathname params gw@Gateway{appSecret=[]} = do
   pure $ opts & header "X-REQUEST-NONCE" .~ [B.pack nonce]
               & header "X-REQUEST-TYPE" .~ ["JSAPI"]
 
-prepare done method pathname params gw@Gateway{appSecret=sec} = do
+prepare done _ pathname params gw@Gateway{appSecret=sec} = do
   t <- show . toEpochTime <$> getUnixTime
   done pathname t sec params gw
 

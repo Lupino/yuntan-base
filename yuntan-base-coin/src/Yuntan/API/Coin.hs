@@ -17,11 +17,11 @@ import           Yuntan.Types.Internal
 import           Yuntan.Types.ListResult (From, ListResult, Size)
 import           Yuntan.Types.Result     (OkResult)
 
-saveCoin     :: AppEnv u => Name -> Coin -> GenHaxl u (OkResult Score)
-getCoinScore :: AppEnv u => Name -> GenHaxl u (OkResult Score)
-getCoinList  :: AppEnv u => Name -> From -> Size -> GenHaxl u (ListResult Coin)
-getCoinInfo  :: AppEnv u => Name -> GenHaxl u CoinInfo
-setCoinInfo  :: AppEnv u => Name -> Value -> GenHaxl u ()
+saveCoin     :: AppEnv u => Name -> Coin -> GenHaxl u w (OkResult Score)
+getCoinScore :: AppEnv u => Name -> GenHaxl u w (OkResult Score)
+getCoinList  :: AppEnv u => Name -> From -> Size -> GenHaxl u w (ListResult Coin)
+getCoinInfo  :: AppEnv u => Name -> GenHaxl u w CoinInfo
+setCoinInfo  :: AppEnv u => Name -> Value -> GenHaxl u w ()
 
 saveCoin n c       = uncachedRequest (SaveCoin n c)
 getCoinScore n     = dataFetch (GetCoinScore n)

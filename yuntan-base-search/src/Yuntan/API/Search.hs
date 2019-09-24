@@ -21,18 +21,18 @@ import           Haxl.Core             (GenHaxl, dataFetch, uncachedRequest)
 import           Yuntan.DS.Search
 import           Yuntan.Types.Internal
 
-createIndex :: AppEnv u => String -> Value -> GenHaxl u Value
-getIndex    :: AppEnv u => String -> GenHaxl u Value
-deleteIndex :: AppEnv u => String -> GenHaxl u Value
-listIndexes :: AppEnv u => GenHaxl u Value
-docIndex    :: AppEnv u => String -> String -> Value -> GenHaxl u Value
-docCount    :: AppEnv u => String -> GenHaxl u Value
-docGet      :: AppEnv u => String -> String -> GenHaxl u Value
-docDelete   :: AppEnv u => String -> String -> GenHaxl u Value
-search      :: AppEnv u => String -> Value -> GenHaxl u Value
-listFields  :: AppEnv u => String -> GenHaxl u Value
-debug       :: AppEnv u => String -> String -> GenHaxl u Value
-alias       :: AppEnv u => Value -> GenHaxl u Value
+createIndex :: AppEnv u => String -> Value -> GenHaxl u w Value
+getIndex    :: AppEnv u => String -> GenHaxl u w Value
+deleteIndex :: AppEnv u => String -> GenHaxl u w Value
+listIndexes :: AppEnv u => GenHaxl u w Value
+docIndex    :: AppEnv u => String -> String -> Value -> GenHaxl u w Value
+docCount    :: AppEnv u => String -> GenHaxl u w Value
+docGet      :: AppEnv u => String -> String -> GenHaxl u w Value
+docDelete   :: AppEnv u => String -> String -> GenHaxl u w Value
+search      :: AppEnv u => String -> Value -> GenHaxl u w Value
+listFields  :: AppEnv u => String -> GenHaxl u w Value
+debug       :: AppEnv u => String -> String -> GenHaxl u w Value
+alias       :: AppEnv u => Value -> GenHaxl u w Value
 
 createIndex n v = uncachedRequest (CreateIndex n v)
 getIndex n      = dataFetch (GetIndex n)

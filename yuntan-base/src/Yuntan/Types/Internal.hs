@@ -54,12 +54,12 @@ initGateway gw@Gateway{..} = do
 
 instance FromJSON Gateway where
   parseJSON = withObject "Gateway" $ \o -> do
-    host       <- o .:? "host"         .!= "https://gw.huabot.com"
+    host       <- o .:? "host"       .!= "https://gw.huabot.com"
     appKey     <- o .:  "key"
-    appSecret  <- o .:?  "secret"      .!= ""
-    numThreads <- o .:  "numThreads"   .!= 1
-    timeout    <- o .:? "timeout"      .!= 30
-    connCount  <- o .:? "conn-count"   .!= 10
+    appSecret  <- o .:? "secret"     .!= ""
+    numThreads <- o .:? "numThreads" .!= 1
+    timeout    <- o .:? "timeout"    .!= 30
+    connCount  <- o .:? "conn-count" .!= 10
     return Gateway
       { mgr = error "uninitial"
       , mgrDyn = error "uninitial"

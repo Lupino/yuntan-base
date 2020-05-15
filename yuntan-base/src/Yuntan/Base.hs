@@ -15,13 +15,13 @@ import           Yuntan.Types.Internal  as X
 import           Control.Lens           ((&), (.~))
 import           Data.Aeson             (Value (..))
 import qualified Data.ByteString.Char8  as B (ByteString, pack)
+import           Data.CaseInsensitive   (original)
 import           Data.HashMap.Strict    (insert)
 import           Data.Text              (pack)
 import qualified Data.Text.Lazy         as LT (Text, pack)
 import           Data.UnixTime
 import           Network.HTTP.Client    (Manager)
 import           Network.Wreq           (Options, defaults, header, manager)
-import           Yuntan.Types.Internal  (Gateway (..), Method, Pathname)
 import           Yuntan.Utils.Signature (signJSON, signParams, signRaw)
 
 getMgr :: Manager -> Options
@@ -49,7 +49,7 @@ getOptionsAndSign_ pathname ts sec params Gateway{appKey = key, mgr = mgr} = do
                                       ("timestamp", LT.pack ts):
                                       ("key", LT.pack key):params)
       opts = getMgr mgr & header "X-REQUEST-KEY" .~ [B.pack key]
-                        & header "X-REQUEST-SIGNATURE" .~ [sign]
+                        & header "X-REQUEST-SIGNATURE" .~ [original sign]
                         & header "X-REQUEST-TIME" .~ [B.pack ts]
                         & header "User-Agent" .~ ["haskell yuntan-base-0.1.0.0"]
   return opts
@@ -63,7 +63,7 @@ getOptionsAndSignJSON_ pathname ts sec (Object v) Gateway{appKey = key, mgr = mg
            $ insert "key" (String $ pack key) v
       sign = signJSON (B.pack sec) (Object v')
       opts = getMgr mgr & header "X-REQUEST-KEY" .~ [B.pack key]
-                        & header "X-REQUEST-SIGNATURE" .~ [sign]
+                        & header "X-REQUEST-SIGNATURE" .~ [original sign]
                         & header "X-REQUEST-TIME" .~ [B.pack ts]
                         & header "User-Agent" .~ ["haskell yuntan-base-0.1.0.0"]
                         & header "Content-Type" .~ ["application/json"]
@@ -85,7 +85,7 @@ getOptionsAndSignRaw_ path ts sec dat Gateway{appKey = key, mgr = mgr} = do
                                   , ("pathname", B.pack path)
                                   ]
       opts = getMgr mgr & header "X-REQUEST-KEY" .~ [B.pack key]
-                        & header "X-REQUEST-SIGNATURE" .~ [sign]
+                        & header "X-REQUEST-SIGNATURE" .~ [original sign]
                         & header "X-REQUEST-TIME" .~ [B.pack ts]
                         & header "User-Agent" .~ ["haskell yuntan-base-0.1.0.0"]
   return opts

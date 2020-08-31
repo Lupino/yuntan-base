@@ -20,10 +20,9 @@ import           Haxl.Core                (BlockedFetch (..), DataSource,
                                            StateKey, dataSourceName, fetch,
                                            putFailure, putSuccess, showp)
 
+import           Data.Aeson.Result        (From, List, Ok, Size)
 import           Yuntan.DS.HTTP.User
 import           Yuntan.Types.Internal    hiding (numThreads)
-import           Yuntan.Types.ListResult  (From, ListResult, Size)
-import           Yuntan.Types.Result      (OkResult)
 import           Yuntan.Types.User
 
 import qualified Control.Exception        (SomeException, bracket_, try)
@@ -36,17 +35,17 @@ import           Control.Concurrent.QSem
 data UserReq a where
   CreateUser       :: UserName -> Password -> UserReq User
   GetUser          :: UserName -> UserReq User
-  GetUsers         :: From -> Size -> UserReq (ListResult User)
-  VerifyPasswd     :: UserName -> Password -> UserReq (OkResult String)
-  RemoveUser       :: UserName -> UserReq (OkResult String)
-  UpdateUserName   :: UserName -> UserName -> UserReq (OkResult String)
-  UpdateUserPasswd :: UserName -> Password -> UserReq (OkResult String)
-  UpdateUserExtra  :: UserName -> Extra -> UserReq (OkResult String)
-  RemoveUserExtra  :: UserName -> Extra -> UserReq (OkResult String)
-  ClearUserExtra   :: UserName -> UserReq (OkResult String)
+  GetUsers         :: From -> Size -> UserReq (List User)
+  VerifyPasswd     :: UserName -> Password -> UserReq (Ok String)
+  RemoveUser       :: UserName -> UserReq (Ok String)
+  UpdateUserName   :: UserName -> UserName -> UserReq (Ok String)
+  UpdateUserPasswd :: UserName -> Password -> UserReq (Ok String)
+  UpdateUserExtra  :: UserName -> Extra -> UserReq (Ok String)
+  RemoveUserExtra  :: UserName -> Extra -> UserReq (Ok String)
+  ClearUserExtra   :: UserName -> UserReq (Ok String)
   CreateBind       :: UserName -> Service -> ServiceName -> Extra -> UserReq Bind
   GetBind          :: ServiceName -> UserReq Bind
-  DeleteBind       :: BindID -> UserReq (OkResult String)
+  DeleteBind       :: BindID -> UserReq (Ok String)
 
   deriving (Typeable)
 

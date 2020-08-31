@@ -21,11 +21,10 @@ import           Haxl.Core                (BlockedFetch (..), DataSource,
                                            StateKey, dataSourceName, fetch,
                                            putFailure, putSuccess, showp)
 
+import           Data.Aeson.Result        (From, List, Ok, Size)
 import           Yuntan.DS.HTTP.Coin
 import           Yuntan.Types.Coin
 import           Yuntan.Types.Internal    hiding (numThreads)
-import           Yuntan.Types.ListResult  (From, ListResult, Size)
-import           Yuntan.Types.Result      (OkResult)
 
 import qualified Control.Exception        (SomeException, bracket_, try)
 
@@ -35,9 +34,9 @@ import           Control.Concurrent.QSem
 -- Data source implementation.
 
 data CoinReq a where
-  SaveCoin         :: Name -> Coin -> CoinReq (OkResult Score)
-  GetCoinScore     :: Name -> CoinReq (OkResult Score)
-  GetCoinList      :: Name -> From -> Size -> CoinReq (ListResult Coin)
+  SaveCoin         :: Name -> Coin -> CoinReq (Ok Score)
+  GetCoinScore     :: Name -> CoinReq (Ok Score)
+  GetCoinList      :: Name -> From -> Size -> CoinReq (List Coin)
   GetCoinInfo      :: Name -> CoinReq CoinInfo
   SetCoinInfo      :: Name -> Value -> CoinReq ()
 

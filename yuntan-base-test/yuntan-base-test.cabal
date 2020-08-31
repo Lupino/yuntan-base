@@ -23,7 +23,7 @@ test-suite yuntan-test
                      , aeson
                      , text
                      , yuntan-common-list-result
-                     , yuntan-common-result
+                     , aeson-result
                      , yuntan-base-coin
                      , yuntan-base-user
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N

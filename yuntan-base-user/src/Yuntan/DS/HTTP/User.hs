@@ -18,16 +18,15 @@ module Yuntan.DS.HTTP.User
   ) where
 
 import           Data.Aeson                 (encode)
+import           Data.Aeson.Result          (From, List, Ok, Size)
 import qualified Data.ByteString.Lazy.Char8 as LB (ByteString, toStrict)
 import           Data.Text                  (unpack)
 import           Data.Text.Encoding         (decodeUtf8, encodeUtf8)
 import qualified Data.Text.Lazy             as LT (Text, fromStrict, pack)
 import           Network.Wreq
+import           Network.Wreq.Helper
 import           Yuntan.Base
-import           Yuntan.Types.ListResult    (From, ListResult, Size)
-import           Yuntan.Types.Result        (OkResult)
 import           Yuntan.Types.User
-import           Yuntan.Utils.Wreq
 
 b2t :: LB.ByteString -> LT.Text
 b2t = LT.fromStrict . decodeUtf8 . LB.toStrict
@@ -55,16 +54,16 @@ getUser n gw = do
         uri = host gw ++ path
 
 --   get    "/api/users/"
-getUsers :: From -> Size -> Gateway -> IO (ListResult User)
+getUsers :: From -> Size -> Gateway -> IO (List User)
 getUsers f s gw = do
   opts <- getOptionsAndSign "GET" "/api/users/"
     [("from", LT.pack $ show f), ("size", LT.pack $ show s)] gw
-  responseListResult_ "users" $ getWith opts uri
+  responseList_ "users" $ getWith opts uri
 
   where uri = concat [ host gw, "/api/users/?from=", show f, "&size=", show s]
 
 --   post   "/api/users/:uidOrName/verify"
-verifyPasswd :: UserName -> Password -> Gateway -> IO (OkResult String)
+verifyPasswd :: UserName -> Password -> Gateway -> IO (Ok String)
 verifyPasswd n p gw = do
   opts <- getOptionsAndSign "POST" path [("passwd", LT.fromStrict p)] gw
   responseJSON $ postWith opts uri [ "passwd" := encodeUtf8 p ]
@@ -73,7 +72,7 @@ verifyPasswd n p gw = do
         uri = host gw ++ path
 
 --   delete "/api/users/:uidOrName/"
-removeUser :: UserName -> Gateway -> IO (OkResult String)
+removeUser :: UserName -> Gateway -> IO (Ok String)
 removeUser n gw = do
   opts <- getOptionsAndSign "DELETE" path [] gw
   responseJSON $ deleteWith opts uri
@@ -82,7 +81,7 @@ removeUser n gw = do
         uri = host gw ++ path
 
 --   post   "/api/users/:uidOrName/"
-updateUserName :: UserName -> UserName -> Gateway -> IO (OkResult String)
+updateUserName :: UserName -> UserName -> Gateway -> IO (Ok String)
 updateUserName n n1 gw = do
   opts <- getOptionsAndSign "POST" path [("username", LT.fromStrict n1)] gw
   responseJSON $ postWith opts uri [ "username" := encodeUtf8 n1 ]
@@ -91,7 +90,7 @@ updateUserName n n1 gw = do
         uri = host gw ++ path
 
 --   post   "/api/users/:uidOrName/passwd"
-updateUserPasswd :: UserName -> Password -> Gateway -> IO (OkResult String)
+updateUserPasswd :: UserName -> Password -> Gateway -> IO (Ok String)
 updateUserPasswd n p gw = do
   opts <- getOptionsAndSign "POST" path [("passwd", LT.fromStrict p)] gw
   responseJSON $ postWith opts uri [ "passwd" := encodeUtf8 p ]
@@ -100,14 +99,14 @@ updateUserPasswd n p gw = do
         uri = host gw ++ path
 
 --   post   "/api/users/:uidOrName/extra"
-updateUserExtra :: UserName -> Extra -> Gateway -> IO (OkResult String)
+updateUserExtra :: UserName -> Extra -> Gateway -> IO (Ok String)
 updateUserExtra = userExtra "POST"
 
 --   delete "/api/users/:uidOrName/extra"
-removeUserExtra :: UserName -> Extra -> Gateway -> IO (OkResult String)
+removeUserExtra :: UserName -> Extra -> Gateway -> IO (Ok String)
 removeUserExtra = userExtra "DELETE"
 
-userExtra :: String -> UserName -> Extra -> Gateway -> IO (OkResult String)
+userExtra :: String -> UserName -> Extra -> Gateway -> IO (Ok String)
 userExtra m n ex gw = do
   opts <- getOptionsAndSign m path [("extra", b2t ex')] gw
   responseJSON $ customPayloadMethodWith m opts uri [ "extra" := ex' ]
@@ -117,7 +116,7 @@ userExtra m n ex gw = do
         ex' = encode ex
 
 --   post   "/api/users/:uidOrName/extra/clear"
-clearUserExtra :: UserName -> Gateway -> IO (OkResult String)
+clearUserExtra :: UserName -> Gateway -> IO (Ok String)
 clearUserExtra n gw = do
   opts <- getOptionsAndSign "POST" path [] gw
   responseJSON $ customMethodWith "POST" opts uri
@@ -151,7 +150,7 @@ getBind sn gw = do
   where uri = concat [ host gw, "/api/binds/?name=", unpack sn ]
 
 --   delete "/api/binds/:bind_id"
-deleteBind :: BindID -> Gateway -> IO (OkResult String)
+deleteBind :: BindID -> Gateway -> IO (Ok String)
 deleteBind bid gw = do
   opts <- getOptionsAndSign "DELETE" path [] gw
   responseJSON $ deleteWith opts uri

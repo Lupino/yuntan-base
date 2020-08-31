@@ -21,8 +21,8 @@ import           Data.ByteString.Lazy (ByteString)
 import           Data.HashMap.Strict  (insert)
 import           Data.Text            (pack)
 import           Network.Wreq
+import           Network.Wreq.Helper  (responseJSON)
 import           Yuntan.Base          (Gateway (host), getOptionsAndSignJSON)
-import           Yuntan.Utils.Wreq    (responseJSON)
 
 insertPathName :: Value -> String -> Value
 insertPathName (Object v') path = Object $ insert "pathname" (String $ pack path) v'

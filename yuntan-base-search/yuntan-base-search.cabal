@@ -29,9 +29,8 @@ library
                      , bytestring
                      , wreq
                      , yuntan-base
-                     , yuntan-common-wreq
-                     , yuntan-common-list-result
-                     , yuntan-common-result
+                     , wreq-helper
+                     , aeson-result
   default-language:    Haskell2010
 
 source-repository head

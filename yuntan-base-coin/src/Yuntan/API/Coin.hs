@@ -8,18 +8,17 @@ module Yuntan.API.Coin
   , initCoinState
   ) where
 
-import           Data.Aeson              (Value)
-import           Haxl.Core               (GenHaxl, dataFetch, uncachedRequest)
+import           Data.Aeson            (Value)
+import           Haxl.Core             (GenHaxl, dataFetch, uncachedRequest)
 
+import           Data.Aeson.Result     (From, List, Ok, Size)
 import           Yuntan.DS.Coin
 import           Yuntan.Types.Coin
 import           Yuntan.Types.Internal
-import           Yuntan.Types.ListResult (From, ListResult, Size)
-import           Yuntan.Types.Result     (OkResult)
 
-saveCoin     :: AppEnv u => Name -> Coin -> GenHaxl u w (OkResult Score)
-getCoinScore :: AppEnv u => Name -> GenHaxl u w (OkResult Score)
-getCoinList  :: AppEnv u => Name -> From -> Size -> GenHaxl u w (ListResult Coin)
+saveCoin     :: AppEnv u => Name -> Coin -> GenHaxl u w (Ok Score)
+getCoinScore :: AppEnv u => Name -> GenHaxl u w (Ok Score)
+getCoinList  :: AppEnv u => Name -> From -> Size -> GenHaxl u w (List Coin)
 getCoinInfo  :: AppEnv u => Name -> GenHaxl u w CoinInfo
 setCoinInfo  :: AppEnv u => Name -> Value -> GenHaxl u w ()
 

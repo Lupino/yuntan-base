@@ -10,19 +10,19 @@ module Yuntan.Base
   , getOptionsAndSignRaw
   ) where
 
-import           Yuntan.Types.Internal  as X
+import           Yuntan.Types.Internal as X
 
-import           Control.Lens           ((&), (.~))
-import           Data.Aeson             (Value (..))
-import qualified Data.ByteString.Char8  as B (ByteString, pack)
-import           Data.CaseInsensitive   (original)
-import           Data.HashMap.Strict    (insert)
-import           Data.Text              (pack)
-import qualified Data.Text.Lazy         as LT (Text, pack)
+import           Control.Lens          ((&), (.~))
+import           Crypto.Signature      (signJSON, signParams, signRaw)
+import           Data.Aeson            (Value (..))
+import qualified Data.ByteString.Char8 as B (ByteString, pack)
+import           Data.CaseInsensitive  (original)
+import           Data.HashMap.Strict   (insert)
+import           Data.Text             (pack)
+import qualified Data.Text.Lazy        as LT (Text, pack)
 import           Data.UnixTime
-import           Network.HTTP.Client    (Manager)
-import           Network.Wreq           (Options, defaults, header, manager)
-import           Yuntan.Utils.Signature (signJSON, signParams, signRaw)
+import           Network.HTTP.Client   (Manager)
+import           Network.Wreq          (Options, defaults, header, manager)
 
 getMgr :: Manager -> Options
 getMgr mgr = defaults & manager .~ Right mgr

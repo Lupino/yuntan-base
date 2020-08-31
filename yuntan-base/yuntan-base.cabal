@@ -29,8 +29,8 @@ library
                      , unordered-containers
                      , MissingH
                      , http-client-tls
-                     , yuntan-common-signature
-                     , yuntan-common-wreq
+                     , signature
+                     , wreq-helper
                      , case-insensitive
   default-language:    Haskell2010
 

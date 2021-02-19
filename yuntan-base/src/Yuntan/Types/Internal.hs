@@ -2,8 +2,7 @@
 {-# LANGUAGE RecordWildCards   #-}
 
 module Yuntan.Types.Internal
-  (
-    Gateway (..)
+  ( Gateway (..)
   , initGateway
   , AppEnv (..)
   , DynamicSecret (..)
@@ -24,25 +23,27 @@ import           Network.HTTP.Client.TLS (tlsManagerSettings)
 type Method = String
 type Pathname = String
 
-data Gateway = Gateway { host       :: String
-                       , appKey     :: String
-                       , appSecret  :: String
-                       , numThreads :: Int
-                       , timeout    :: Int
-                       , connCount  :: Int
-                       , mgr        :: Manager
-                       , mgrDyn     :: Manager
-                       , makeSecret :: Method -> Pathname -> IO DynamicSecret
-                       -- numThreads of fetch async for haxl
-                       }
+data Gateway opts = Gateway
+  { host       :: String
+  , appKey     :: String
+  , appSecret  :: String
+  , numThreads :: Int
+  , timeout    :: Int
+  , connCount  :: Int
+  , mgr        :: Manager
+  , mgrDyn     :: Manager
+  , makeSecret :: Method -> Pathname -> IO DynamicSecret
+  , appOpts    :: Maybe opts
+  -- numThreads of fetch async for haxl
+  }
 
-instance Show Gateway where
+instance Show (Gateway opts) where
   show a = concat [ "host = ", host a
                   , ", key = ", appKey a
                   , ", secret = ", appSecret a
                   ]
 
-initGateway :: Gateway -> IO Gateway
+initGateway :: Gateway opts -> IO (Gateway opts)
 initGateway gw@Gateway{..} = do
   mgr' <- newManager settings { managerConnCount = connCount
                               , managerResponseTimeout = responseTimeoutMicro $ timeout * 1000
@@ -52,7 +53,7 @@ initGateway gw@Gateway{..} = do
                                               else defaultManagerSettings
 
 
-instance FromJSON Gateway where
+instance FromJSON opts => FromJSON (Gateway opts) where
   parseJSON = withObject "Gateway" $ \o -> do
     host       <- o .:? "host"       .!= "https://gw.huabot.com"
     appKey     <- o .:  "key"
@@ -60,6 +61,7 @@ instance FromJSON Gateway where
     numThreads <- o .:? "numThreads" .!= 1
     timeout    <- o .:? "timeout"    .!= 30
     connCount  <- o .:? "conn-count" .!= 10
+    appOpts    <- o .:? "options"
     return Gateway
       { mgr = error "uninitial"
       , mgrDyn = error "uninitial"
@@ -68,7 +70,7 @@ instance FromJSON Gateway where
       }
 
 class AppEnv a where
-  gateway :: a -> String -> Gateway
+  gateway :: a -> String -> (Gateway opts)
 
 data DynamicSecret = DynamicSecret
   { nonce     :: String

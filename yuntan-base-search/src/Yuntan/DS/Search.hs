@@ -92,14 +92,14 @@ fetchAsync sem env req = async $
 
   where gw   = gateway env "SearchDataSource"
 
-fetchSync :: BlockedFetch SearchReq -> Gateway -> IO ()
+fetchSync :: BlockedFetch SearchReq -> Gateway opts -> IO ()
 fetchSync (BlockedFetch req rvar) gw = do
   e <- Control.Exception.try $ fetchReq req gw
   case e of
     Left ex -> putFailure rvar (ex :: Control.Exception.SomeException)
     Right a -> putSuccess rvar a
 
-fetchReq :: SearchReq a -> Gateway -> IO a
+fetchReq :: SearchReq a -> Gateway opts -> IO a
 fetchReq  (CreateIndex n v) = createIndex n v
 fetchReq  (GetIndex n)      = getIndex n
 fetchReq  (DeleteIndex n)   = deleteIndex n

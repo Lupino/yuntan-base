@@ -96,14 +96,14 @@ fetchAsync sem env req = async $
 
   where gw   = gateway env "UserDataSource"
 
-fetchSync :: BlockedFetch UserReq -> Gateway -> IO ()
+fetchSync :: BlockedFetch UserReq -> Gateway opts -> IO ()
 fetchSync (BlockedFetch req rvar) gw = do
   e <- Control.Exception.try $ fetchReq req gw
   case e of
     Left ex -> putFailure rvar (ex :: Control.Exception.SomeException)
     Right a -> putSuccess rvar a
 
-fetchReq :: UserReq a -> Gateway -> IO a
+fetchReq :: UserReq a -> Gateway opts -> IO a
 fetchReq (CreateUser n p)        = createUser n p
 fetchReq (GetUser n)             = getUser n
 fetchReq (GetUsers f si)         = getUsers f si

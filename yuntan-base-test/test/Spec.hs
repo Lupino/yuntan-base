@@ -3,19 +3,19 @@
 import           Haxl.Core               (GenHaxl, StateStore, initEnv, runHaxl,
                                           stateEmpty, stateSet)
 import           Haxl.Core.Monad         (unsafeLiftIO)
-import           Yuntan.Base
 import           Yuntan.API.Coin
-import           Yuntan.Types.Coin
 import           Yuntan.API.User
-import           Yuntan.Types.User
+import           Yuntan.Base
+import           Yuntan.Types.Coin
 import           Yuntan.Types.ListResult
+import           Yuntan.Types.User
 
 import           Control.Monad           (void, when)
 import           Data.Aeson              (Value (..), object, (.=))
 import           Data.Text               (pack)
 
-data UserEnv = UserEnv { getGateway  :: Gateway -- for user
-                       , getGateway1 :: Gateway -- for coin
+data UserEnv = UserEnv { getGateway  :: Gateway () -- for user
+                       , getGateway1 :: Gateway () -- for coin
                        }
   deriving (Show)
 

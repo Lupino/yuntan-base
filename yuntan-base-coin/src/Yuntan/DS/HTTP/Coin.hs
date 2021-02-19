@@ -19,7 +19,7 @@ import           Yuntan.Base
 import           Yuntan.Types.Coin
 
 -- post "/api/coins/:name/"
-saveCoin :: Name -> Coin -> Gateway -> IO (Ok Score)
+saveCoin :: Name -> Coin -> Gateway opts -> IO (Ok Score)
 saveCoin n c gw = do
   opts <- getOptionsAndSign "POST" path
     [ ("score", LT.pack $ show score)
@@ -43,7 +43,7 @@ saveCoin n c gw = do
         ct = coinCreatedAt c
 
 -- get "/api/coins/:name/score/"
-getCoinScore :: Name -> Gateway -> IO (Ok Score)
+getCoinScore :: Name -> Gateway opts -> IO (Ok Score)
 getCoinScore n gw = do
   opts <- getOptionsAndSign "GET" path [] gw
   responseOk_ "score" $ getWith opts uri
@@ -53,7 +53,7 @@ getCoinScore n gw = do
 
 
 -- get "/api/coins/:name/"
-getCoinList :: Name -> From -> Size -> Gateway -> IO (List Coin)
+getCoinList :: Name -> From -> Size -> Gateway opts -> IO (List Coin)
 getCoinList n f s gw = do
   opts <- getOptionsAndSign "GET" path
     [("from", LT.pack $ show f) , ("size", LT.pack $ show s)] gw
@@ -63,7 +63,7 @@ getCoinList n f s gw = do
         uri = concat [ host gw, path, "?from=", show f, "&size=", show s]
 
 -- get "/api/coins/:name/info/"
-getCoinInfo :: Name -> Gateway -> IO CoinInfo
+getCoinInfo :: Name -> Gateway opts -> IO CoinInfo
 getCoinInfo n gw = do
   opts <- getOptionsAndSign "GET" path [] gw
   responseJSON $ getWith opts uri
@@ -72,7 +72,7 @@ getCoinInfo n gw = do
         uri = host gw ++ path
 
 -- put "/api/coins/:name/info/"
-setCoinInfo :: Name -> Value -> Gateway -> IO ()
+setCoinInfo :: Name -> Value -> Gateway opts -> IO ()
 setCoinInfo n v gw = do
   opts <- getOptionsAndSignJSON "PUT" path v gw
   eitherToError $ responseEither' $ putWith opts uri (encode v)

@@ -81,14 +81,14 @@ fetchAsync sem env req = async $
 
   where gw   = gateway env "CoinDataSource"
 
-fetchSync :: BlockedFetch CoinReq -> Gateway -> IO ()
+fetchSync :: BlockedFetch CoinReq -> Gateway opts -> IO ()
 fetchSync (BlockedFetch req rvar) gw = do
   e <- Control.Exception.try $ fetchReq req gw
   case e of
     Left ex -> putFailure rvar (ex :: Control.Exception.SomeException)
     Right a -> putSuccess rvar a
 
-fetchReq :: CoinReq a -> Gateway -> IO a
+fetchReq :: CoinReq a -> Gateway opts -> IO a
 fetchReq (SaveCoin n c)       = saveCoin n c
 fetchReq (GetCoinScore n)     = getCoinScore n
 fetchReq (GetCoinList n f si) = getCoinList n f si

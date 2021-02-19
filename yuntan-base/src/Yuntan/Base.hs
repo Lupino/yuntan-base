@@ -27,12 +27,12 @@ import           Network.Wreq          (Options, defaults, header, manager)
 getMgr :: Manager -> Options
 getMgr mgr = defaults & manager .~ Right mgr
 
-getOptions :: Gateway -> Options
+getOptions :: Gateway opts -> Options
 getOptions Gateway{appKey = key, mgr = mgr} =
   getMgr mgr & header "X-REQUEST-KEY" .~ [B.pack key]
              & header "User-Agent" .~ ["haskell yuntan-base-0.1.0.0"]
 
-prepare :: (Pathname -> String -> String -> a -> Gateway -> IO Options) -> Method -> Pathname -> a -> Gateway -> IO Options
+prepare :: (Pathname -> String -> String -> a -> Gateway opts -> IO Options) -> Method -> Pathname -> a -> Gateway opts -> IO Options
 prepare done method pathname params gw@Gateway{appSecret=[]} = do
   DynamicSecret {..} <- makeSecret gw method pathname
   opts <- done pathname (show timestamp) secret params gw
@@ -43,7 +43,7 @@ prepare done _ pathname params gw@Gateway{appSecret=sec} = do
   t <- show . toEpochTime <$> getUnixTime
   done pathname t sec params gw
 
-getOptionsAndSign_ :: Pathname -> String -> String -> [(LT.Text, LT.Text)] -> Gateway -> IO Options
+getOptionsAndSign_ :: Pathname -> String -> String -> [(LT.Text, LT.Text)] -> Gateway opts -> IO Options
 getOptionsAndSign_ pathname ts sec params Gateway{appKey = key, mgr = mgr} = do
   let sign = signParams (B.pack sec) (("pathname", LT.pack pathname):
                                       ("timestamp", LT.pack ts):
@@ -56,7 +56,7 @@ getOptionsAndSign_ pathname ts sec params Gateway{appKey = key, mgr = mgr} = do
 
 getOptionsAndSign = prepare getOptionsAndSign_
 
-getOptionsAndSignJSON_ :: Pathname -> String -> String -> Value -> Gateway -> IO Options
+getOptionsAndSignJSON_ :: Pathname -> String -> String -> Value -> Gateway opts -> IO Options
 getOptionsAndSignJSON_ pathname ts sec (Object v) Gateway{appKey = key, mgr = mgr} = do
   let v'   = insert "timestamp" (String $ pack ts)
            $ insert "pathname" (String $ pack pathname)
@@ -77,7 +77,7 @@ getOptionsAndSignJSON_ _ _ _ Null _ = error "Unsupport Aeson.Value signature"
 
 getOptionsAndSignJSON = prepare getOptionsAndSignJSON_
 
-getOptionsAndSignRaw_ :: Pathname -> String -> String -> B.ByteString -> Gateway -> IO Options
+getOptionsAndSignRaw_ :: Pathname -> String -> String -> B.ByteString -> Gateway opts -> IO Options
 getOptionsAndSignRaw_ path ts sec dat Gateway{appKey = key, mgr = mgr} = do
   let sign = signRaw (B.pack sec) [ ("key", B.pack key)
                                   , ("timestamp", B.pack ts)

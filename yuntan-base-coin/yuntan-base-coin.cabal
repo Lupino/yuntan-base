@@ -27,10 +27,10 @@ library
                      , aeson
                      , text
                      , unordered-containers
-                     , wreq
                      , yuntan-base
                      , wreq-helper
                      , aeson-result
+                     , bytestring
   default-language:    Haskell2010
 
 

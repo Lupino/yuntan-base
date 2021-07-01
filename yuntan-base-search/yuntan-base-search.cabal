@@ -27,7 +27,6 @@ library
                      , text
                      , aeson
                      , bytestring
-                     , wreq
                      , yuntan-base
                      , wreq-helper
                      , aeson-result

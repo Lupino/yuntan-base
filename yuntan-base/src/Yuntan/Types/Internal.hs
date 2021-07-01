@@ -13,14 +13,13 @@ module Yuntan.Types.Internal
 import           Data.Aeson              (FromJSON (..), withObject, (.!=),
                                           (.:), (.:?))
 import           Data.Int                (Int64)
-import           Data.String.Utils       (startswith)
 import           Network.HTTP.Client     (Manager, defaultManagerSettings,
                                           managerConnCount,
                                           managerResponseTimeout, newManager,
                                           responseTimeoutMicro)
 import           Network.HTTP.Client.TLS (tlsManagerSettings)
+import           Network.HTTP.Types      (Method)
 
-type Method = String
 type Pathname = String
 
 data Gateway opts = Gateway
@@ -49,8 +48,8 @@ initGateway gw@Gateway{..} = do
                               , managerResponseTimeout = responseTimeoutMicro $ timeout * 1000
                               }
   pure gw { mgr = mgr' }
-  where settings = if startswith "https" host then tlsManagerSettings
-                                              else defaultManagerSettings
+  where settings = if take 5 host == "https" then tlsManagerSettings
+                                             else defaultManagerSettings
 
 
 instance FromJSON opts => FromJSON (Gateway opts) where

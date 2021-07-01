@@ -20,22 +20,24 @@ import           Data.Aeson           (Value (Object, String), encode, object)
 import           Data.ByteString.Lazy (ByteString)
 import           Data.HashMap.Strict  (insert)
 import           Data.Text            (pack)
-import           Network.Wreq
 import           Network.Wreq.Helper  (responseJSON)
-import           Yuntan.Base          (Gateway (host), getOptionsAndSignJSON)
+import           Yuntan.Base          (Gateway (host), Method, Options,
+                                       Response, deleteWith,
+                                       getOptionsAndSignJSON, getWith,
+                                       postLbsWith, putLbsWith)
 
 insertPathName :: Value -> String -> Value
 insertPathName (Object v') path = Object $ insert "pathname" (String $ pack path) v'
 insertPathName _           _    = error "Unsupported"
 
-commonRequest :: String -> (Options -> String -> ByteString -> IO (Response ByteString))
+commonRequest :: Method -> (Options -> String -> ByteString -> IO (Response ByteString))
               -> String -> Value -> Gateway opts -> IO Value
 commonRequest method req path v gw = do
   opts <- getOptionsAndSignJSON method path v gw
   responseJSON $ req opts uri (encode v)
   where uri = host gw ++ path
 
-commonRequest_ :: String -> (Options -> String -> IO (Response ByteString))
+commonRequest_ :: Method -> (Options -> String -> IO (Response ByteString))
               -> String -> Gateway opts -> IO Value
 commonRequest_ method req path gw = do
   opts <- getOptionsAndSignJSON method path (object []) gw
@@ -44,7 +46,7 @@ commonRequest_ method req path gw = do
 
 -- put "/api/:indexName"
 createIndex :: String -> Value -> Gateway opts -> IO Value
-createIndex indexName = commonRequest "PUT" putWith ("/api/" ++ indexName)
+createIndex indexName = commonRequest "PUT" putLbsWith ("/api/" ++ indexName)
 
 -- get "/api/:indexName"
 getIndex :: String -> Gateway opts -> IO Value
@@ -60,7 +62,7 @@ listIndexes = commonRequest_ "GET" getWith "/api"
 
 -- put "/api/:indexName/:docID"
 docIndex :: String -> String -> Value -> Gateway opts -> IO Value
-docIndex indexName docID = commonRequest "PUT" putWith path
+docIndex indexName docID = commonRequest "PUT" putLbsWith path
   where path = concat ["/api/", indexName, "/", docID]
 
 -- get "/api/:indexName/_count"
@@ -80,7 +82,7 @@ docDelete indexName docID = commonRequest_ "GET" deleteWith path
 
 -- post "/api/:indexName/_search"
 search :: String -> Value -> Gateway opts -> IO Value
-search indexName = commonRequest "POST" postWith path
+search indexName = commonRequest "POST" postLbsWith path
   where path = concat ["/api/", indexName, "/_search"]
 
 -- get "/api/:indexName/_fields"
@@ -95,5 +97,5 @@ debug indexName docID = commonRequest_ "GET" getWith path
 
 -- post "/api/_aliases"
 alias :: Value -> Gateway opts -> IO Value
-alias = commonRequest "POST" postWith path
+alias = commonRequest "POST" postLbsWith path
   where path = "/api/_aliases"

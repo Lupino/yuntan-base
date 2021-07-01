@@ -9,11 +9,12 @@ module Yuntan.DS.HTTP.Coin
   , setCoinInfo
   ) where
 
-import           Data.Aeson          (Value, encode)
-import           Data.Aeson.Result   (From, List, Ok, Size)
-import           Data.Text           (unpack)
-import qualified Data.Text.Lazy      as LT (pack)
-import           Network.Wreq
+import           Data.Aeson            (Value, encode)
+import           Data.Aeson.Result     (From, List, Ok, Size)
+import qualified Data.ByteString.Char8 as B (pack)
+import           Data.Text             (unpack)
+import           Data.Text.Encoding    (encodeUtf8)
+import qualified Data.Text.Lazy        as LT (pack)
 import           Network.Wreq.Helper
 import           Yuntan.Base
 import           Yuntan.Types.Coin
@@ -28,10 +29,10 @@ saveCoin n c gw = do
     , ("created_at", LT.pack $ show ct)
     ] gw
   responseOk_ "score" $ postWith opts uri
-    [ "score" := score
-    , "type" := show tp
-    , "desc" := desc
-    , "created_at" := ct
+    [ "score"      .= B.pack (show score)
+    , "type"       .= B.pack (show tp)
+    , "desc"       .= encodeUtf8 desc
+    , "created_at" .= B.pack (show ct)
     ]
 
   where path = "/api/coins/" ++ unpack n ++ "/"
@@ -75,7 +76,7 @@ getCoinInfo n gw = do
 setCoinInfo :: Name -> Value -> Gateway opts -> IO ()
 setCoinInfo n v gw = do
   opts <- getOptionsAndSignJSON "PUT" path v gw
-  eitherToError $ responseEither' $ putWith opts uri (encode v)
+  eitherToError $ responseEither' $ putLbsWith opts uri (encode v)
 
   where path = concat [ "/api/coins/", unpack n, "/info/" ]
         uri = host gw ++ path

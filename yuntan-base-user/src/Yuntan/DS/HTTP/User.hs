@@ -1,8 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Yuntan.DS.HTTP.User
-  (
-    createUser
+  ( createUser
   , getUser
   , getUsers
   , removeUser
@@ -23,7 +22,6 @@ import qualified Data.ByteString.Lazy.Char8 as LB (ByteString, toStrict)
 import           Data.Text                  (unpack)
 import           Data.Text.Encoding         (decodeUtf8, encodeUtf8)
 import qualified Data.Text.Lazy             as LT (Text, fromStrict, pack)
-import           Network.Wreq
 import           Network.Wreq.Helper
 import           Yuntan.Base
 import           Yuntan.Types.User
@@ -38,8 +36,8 @@ createUser n p gw = do
     [ ("username", LT.fromStrict n)
     , ("passwd", LT.fromStrict p)
     ] gw
-  responseJSON $ postWith opts uri [ "username" := encodeUtf8 n
-                                   , "passwd"   := encodeUtf8 p
+  responseJSON $ postWith opts uri [ "username" .= encodeUtf8 n
+                                   , "passwd"   .= encodeUtf8 p
                                    ]
 
  where uri = host gw ++ "/api/users/"
@@ -66,7 +64,7 @@ getUsers f s gw = do
 verifyPasswd :: UserName -> Password -> Gateway opts -> IO (Ok String)
 verifyPasswd n p gw = do
   opts <- getOptionsAndSign "POST" path [("passwd", LT.fromStrict p)] gw
-  responseJSON $ postWith opts uri [ "passwd" := encodeUtf8 p ]
+  responseJSON $ postWith opts uri [ "passwd" .= encodeUtf8 p ]
 
   where path = concat [ "/api/users/", unpack n, "/verify" ]
         uri = host gw ++ path
@@ -84,7 +82,7 @@ removeUser n gw = do
 updateUserName :: UserName -> UserName -> Gateway opts -> IO (Ok String)
 updateUserName n n1 gw = do
   opts <- getOptionsAndSign "POST" path [("username", LT.fromStrict n1)] gw
-  responseJSON $ postWith opts uri [ "username" := encodeUtf8 n1 ]
+  responseJSON $ postWith opts uri [ "username" .= encodeUtf8 n1 ]
 
   where path = concat [ "/api/users/", unpack n, "/" ]
         uri = host gw ++ path
@@ -93,7 +91,7 @@ updateUserName n n1 gw = do
 updateUserPasswd :: UserName -> Password -> Gateway opts -> IO (Ok String)
 updateUserPasswd n p gw = do
   opts <- getOptionsAndSign "POST" path [("passwd", LT.fromStrict p)] gw
-  responseJSON $ postWith opts uri [ "passwd" := encodeUtf8 p ]
+  responseJSON $ postWith opts uri [ "passwd" .= encodeUtf8 p ]
 
   where path = concat [ "/api/users/", unpack n, "/passwd" ]
         uri = host gw ++ path
@@ -106,10 +104,10 @@ updateUserExtra = userExtra "POST"
 removeUserExtra :: UserName -> Extra -> Gateway opts -> IO (Ok String)
 removeUserExtra = userExtra "DELETE"
 
-userExtra :: String -> UserName -> Extra -> Gateway opts -> IO (Ok String)
+userExtra :: Method -> UserName -> Extra -> Gateway opts -> IO (Ok String)
 userExtra m n ex gw = do
   opts <- getOptionsAndSign m path [("extra", b2t ex')] gw
-  responseJSON $ customPayloadMethodWith m opts uri [ "extra" := ex' ]
+  responseJSON $ customPayloadMethodWith m opts uri [ "extra" .= LB.toStrict ex' ]
 
   where path = concat [ "/api/users/", unpack n, "/extra" ]
         uri = host gw ++ path
@@ -132,9 +130,9 @@ createBind n s sn ex gw = do
     , ("name", LT.fromStrict sn)
     , ("extra", b2t ex')
     ] gw
-  responseJSON $ postWith opts uri [ "service" := encodeUtf8 s
-                                   , "name"    := encodeUtf8 sn
-                                   , "extra"   := ex'
+  responseJSON $ postWith opts uri [ "service" .= encodeUtf8 s
+                                   , "name"    .= encodeUtf8 sn
+                                   , "extra"   .= LB.toStrict ex'
                                    ]
 
   where path = concat [ "/api/users/", unpack n, "/binds" ]

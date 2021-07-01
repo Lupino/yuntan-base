@@ -21,16 +21,12 @@ library
                      , text
                      , bytestring
                      , aeson
-                     , http-types
-                     , wreq
-                     , http-client
-                     , lens
-                     , unix-time
                      , unordered-containers
-                     , MissingH
+                     , http-types
+                     , http-client
                      , http-client-tls
+                     , unix-time
                      , signature
-                     , wreq-helper
                      , case-insensitive
   default-language:    Haskell2010
 

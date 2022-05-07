@@ -28,10 +28,10 @@ module Yuntan.Base
 
 import           Crypto.Signature      (signJSON, signParams, signRaw)
 import           Data.Aeson            (Value (..))
+import           Data.Aeson.KeyMap     (insert)
 import qualified Data.ByteString.Char8 as B (ByteString, pack)
 import qualified Data.ByteString.Lazy  as LB (ByteString)
 import           Data.CaseInsensitive  (original)
-import           Data.HashMap.Strict   (insert)
 import           Data.List             (nubBy)
 import           Data.Text             (pack)
 import qualified Data.Text.Lazy        as LT (Text, pack)

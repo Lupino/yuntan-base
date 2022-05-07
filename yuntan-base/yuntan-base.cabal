@@ -21,7 +21,6 @@ library
                      , text
                      , bytestring
                      , aeson
-                     , unordered-containers
                      , http-types
                      , http-client
                      , http-client-tls
